@@ -1,0 +1,101 @@
+/* Bizpress Blogs */
+@import url('https://fonts.googleapis.com/css2?family=Quicksand&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+.bizpress_blogs{
+    margin-left: -20px;
+}
+
+.bizpress_blogs .bizpress_blogs_header{
+    background: linear-gradient(to bottom, rgba(51, 59, 97, 0.52), rgba(51, 59, 97, 0.73)), url('../img/bg.jpg') center;
+    background-size: cover;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    min-height: 400px;
+}
+
+.bizpress_blogs .bizpress_blogs_header h2{
+    text-align:center;
+    color:#fefefe;
+    font-size: 2rem;
+    font-family: 'Quicksand','Roboto', sans-serif;
+}
+
+.bizpress_blogs .bizpress_blogs_search_form{
+    background: rgba(0,0,0,0.45);
+    padding:1rem;
+    display: flex;
+    flex-direction: row;
+}
+
+.bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_search_label{
+    display: none;
+}
+
+.bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input{
+    font-size: 1rem;
+    background: #fff;
+    display: block;
+    color: #555;
+    font-weight: 400;
+    padding:0.6rem 0.9rem;
+    border-radius: 0;
+    margin:0;
+}
+.bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input_category{
+    width:200px;
+}
+.bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input_search{
+    width:400px;
+}
+.bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input_submit{
+    width:200px;
+    color: #fff;
+    transition: all .2s ease-out,color .2s ease-out;
+    background:#333B61;
+    white-space: nowrap;
+    border-radius: 0.5px;
+    font-size: 1.2rem;
+    border: 0;
+    cursor: pointer;
+    font-weight: 400;
+    font-family: poppins,sans-serif;
+    margin-left:0.8rem;
+}
+
+.bizpress-blogs{
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 1rem;
+    margin: auto;
+    padding: 1rem;
+    max-width: 1300px;
+}
+
+.bizpress-blogs .blog{
+    background-color: #fefefe;
+    border-radius: 2px;
+    border: 1px solid #aaa;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.bizpress-blogs .blog .bizpress_blogs_button{
+    padding: 0.4rem 1.2rem;
+    background-color: #333B61;
+    color:#fefefe;
+    border-radius: 3px;
+    border:none;
+    border:1px solid #333B61;
+}
+
+.bizpress-blogs .blog .bizpress_blogs_button_secondary{
+    color: #333B61;
+    background-color:#fefefe;
+    border:1px solid #333B61;
+}
