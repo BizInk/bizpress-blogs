@@ -32,6 +32,7 @@
 
 .bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_search_label{
     display: none;
+    font-family: 'Quicksand','Roboto', sans-serif;
 }
 
 .bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input{
@@ -43,13 +44,37 @@
     padding:0.6rem 0.9rem;
     border-radius: 0;
     margin:0;
+    font-family: 'Quicksand','Roboto', sans-serif;
 }
 .bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input_category{
-    width:200px;
+    width:100%;
+    height:100%;
+    position: relative;
 }
+.bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input_category_wrap{
+    width:200px;
+    position: relative;
+}
+.bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input_category_wrap::before{
+    content: " ";
+    background: url('../img/down-chevron.png') no-repeat center;
+    background-size: contain;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 35%;
+    z-index: 100;
+    right: 5%;
+}
+.bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input_category_wrap.open::before{
+    background: url('../img/up-chevron.png') no-repeat center;
+    background-size: contain;
+}
+
 .bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input_search{
     width:400px;
 }
+
 .bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input_submit{
     width:200px;
     color: #fff;
@@ -92,6 +117,7 @@
     border-radius: 3px;
     border:none;
     border:1px solid #333B61;
+    font-family: 'Quicksand','Roboto', sans-serif;
 }
 
 .bizpress-blogs .blog .bizpress_blogs_button_secondary{

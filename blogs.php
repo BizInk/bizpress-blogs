@@ -47,18 +47,20 @@ function bizpress_blogs_page(){
             
             <form class="bizpress_blogs_search_form">
                 <label for="bizpress_blogs_search_form_search" class="bizpress_blogs_search_form_search_label">Search</label>
-                <select id="bizpress_blogs_category" name="bizpress_category" class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_category">
-                    <option value="any"><?php _e('Any','bizpress');?></option>
-                    <?php
-                        if(empty($categories) == false){
-                            foreach(bizinkblogs_getCategories() as $category){
-                                if($category->slug != 'uncategorized'): //uncategorized
-                                echo '<option value="'.__($category->slug,'bizpress').'">'.__($category->name,'bizpress').'</option>';
-                                endif;
+                <div class="bizpress_blogs_search_form_input_category_wrap">
+                    <select id="bizpress_blogs_category" name="bizpress_category" class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_category">
+                        <option value="any"><?php _e('Any','bizpress');?></option>
+                        <?php
+                            if(empty($categories) == false){
+                                foreach(bizinkblogs_getCategories() as $category){
+                                    if($category->slug != 'uncategorized'): //uncategorized
+                                    echo '<option value="'.__($category->slug,'bizpress').'">'.__($category->name,'bizpress').'</option>';
+                                    endif;
+                                }
                             }
-                        }
-                    ?>
-                </select>
+                        ?>
+                    </select>
+                </div>
                 <input class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_search" id="bizpress_blogs_search_form_search" type="search" placeholder="Search for Articles, Digests & News" name="bizpress_search"/>
                 <input class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_submit" id="bizpress_blogs_search_form_submit" type="submit" value="<?php _e('Search','bizpress');?>"/>
             </form>
