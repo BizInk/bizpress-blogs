@@ -3,6 +3,10 @@
 
 .bizpress_blogs{
     margin-left: -20px;
+    -webkit-user-select: none;
+     -moz-user-select: none;
+     -ms-user-select: none;
+     user-select: none;
 }
 
 .bizpress_blogs .bizpress_blogs_header{
@@ -90,27 +94,27 @@
     margin-left:0.8rem;
 }
 
-.bizpress-blogs{
+.bizpress_blog_items{
     display: grid;
-    grid-template-columns: repeat(4,1fr);
+    grid-template-columns: 1fr;
     gap: 1rem;
     margin: auto;
     padding: 1rem;
-    max-width: 1300px;
+    max-width: 1400px;
 }
 
-.bizpress-blogs .blog{
+.bizpress_blog_items .blog{
     background-color: #fefefe;
-    border-radius: 2px;
+    border-radius: 4px;
     border: 1px solid #aaa;
-    padding: 1rem;
+    padding: 0.8rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
 }
 
-.bizpress-blogs .blog .bizpress_blogs_button{
+.bizpress_blogs_button{
     padding: 0.4rem 1.2rem;
     background-color: #333B61;
     color:#fefefe;
@@ -118,10 +122,251 @@
     border:none;
     border:1px solid #333B61;
     font-family: 'Quicksand','Roboto', sans-serif;
+    cursor: pointer;
 }
 
-.bizpress-blogs .blog .bizpress_blogs_button_secondary{
+.bizpress_blogs_button_secondary{
     color: #333B61;
     background-color:#fefefe;
     border:1px solid #333B61;
+}
+
+.bizpress_blog_items .blog .blog_text .blog_title{
+    font-size: 1.5rem;
+    line-height: 1.2;
+    margin-top: 0;
+}
+.bizpress_blog_items .blog .blog_text .blog_excerpt{
+    margin-bottom: 1rem;
+    -webkit-user-select: none;
+     -moz-user-select: none;
+     -ms-user-select: none;
+     user-select: none;
+}
+.bizpress_blog_items .blog .blog_text .blog_excerpt p{
+    margin:0;
+}
+.bizpress_blog_items .blog .in_library_text{
+    display: none;
+}
+
+.bizpress_blog_items .post_in_library{
+    position: relative;
+}
+.bizpress_blog_items .post_in_library::before{
+    position: absolute;
+    content: "";
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 150;
+}
+.bizpress_blog_items .post_in_library .in_library_text {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    color: #fefefe;
+    z-index: 200;
+    font-size: 2.6rem;
+    transform: rotate(35deg);
+    position: absolute;
+    left: 30%;
+    top:48%;
+}
+
+.bizpress_blogs_model{
+    display: none;
+    position: fixed;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 999991;
+    align-items: center;
+    justify-content: center;
+}
+.bizpress_blogs_model .model{
+    background-color: #fefefe;
+    border:1px solid #eee;
+    border-radius: 4px;
+    max-width: 900px;
+    padding: 1rem;
+    position: relative;
+}
+.bizpress_blogs_model .model .model_title{
+    font-size: 1.5rem;
+}
+.bizpress_blogs_model .model .model_content{
+    max-height: 75vh;
+    width: 97%;
+    padding:0.8rem;
+    -webkit-user-select: none;
+     -moz-user-select: none;
+     -ms-user-select: none;
+     user-select: none;
+}
+.bizpress_blogs_model .model .model_content_blog{
+    scroll-behavior: smooth;
+    overflow-y: scroll;
+    max-height: 75vh;
+    width: 97%;
+    padding:0.8rem;
+    border:1px solid #333B61;
+    border-radius: 4px;
+}
+.bizpress_blogs_model .model .model_content::-webkit-scrollbar{
+    width: 1rem;
+    border-radius: 4px;
+}
+.bizpress_blogs_model .model .model_content::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+.bizpress_blogs_model .model .model_content::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    outline: 1px solid slategrey;
+    border-radius: 4px;
+}
+.bizpress_blogs_model .model .model_actions{
+    margin-top: 1rem;
+}
+.bizpress_blogs_model .model .model_close{
+    position: absolute;
+    top:-15px;
+    right: -15px;
+    height: 30px;
+    width: 30px;
+    background-color: #fefefe;
+    border: 2px solid #333B61;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.bizpress_blogs_model.show{
+    display: flex;
+}
+.bizpress_blogs_model .article_title,
+.bizpress_blogs_model .article_status{
+    text-align: center;
+}
+
+.bizpress_blogs_pagenation{
+    max-width: 600px;
+    padding: 1rem;
+    margin: auto;
+}
+.pagenation{
+    display: flex;
+    justify-content: space-between;
+}
+.pagenation .pagenation_pages{
+    display: flex;
+    justify-content: space-between;
+}
+.pagenation_button{
+    padding:0.6rem 1.1rem;
+    margin-left: 0.2rem;
+    margin-right: 0.2rem;
+    border:none;
+    cursor: pointer;
+}
+
+.pagenation_button:disabled{
+    opacity: 0.8;
+    cursor:not-allowed;
+}
+
+.pagenation .prev_button,
+.pagenation .next_button{
+    background: #333B61;
+    color:#fefefe;
+    border-radius: 3px;
+    border:none;
+    border:1px solid #333B61;
+    font-family: 'Quicksand','Roboto', sans-serif;
+}
+
+.bizpress_blogs_button:disabled,
+.bizpress_blogs_button[disabled]{
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #666666;
+}
+
+.pagenation_page_button.selected{
+    background: url('../img/circle.svg') no-repeat center;
+    background-size: contain;
+}
+.pagenation_page_button:hover{
+    background: url('../img/circle_black.svg') no-repeat center;
+    background-size: contain;
+}
+
+.bizpress_blog_status{
+    text-align: center;
+}
+
+.bizpress_blog_status_error{
+    color:rgb(184, 0, 12);
+}
+
+.loader_section{
+    display: flex;
+    justify-content: center;
+}
+.bizink_blogs_loader {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+.bizink_blogs_loader div {
+    display: inline-block;
+    position: absolute;
+    left: 8px;
+    width: 16px;
+    background: #333B61;
+    animation: bizink_blogs_loader 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+}
+.bizink_blogs_loader div:nth-child(1) {
+    left: 8px;
+    animation-delay: -0.24s;
+}
+.bizink_blogs_loader div:nth-child(2) {
+    left: 32px;
+    animation-delay: -0.12s;
+}
+.bizink_blogs_loader div:nth-child(3) {
+    left: 56px;
+    animation-delay: 0;
+}
+@keyframes bizink_blogs_loader {
+    0% {
+        top: 8px;
+        height: 64px;
+    }
+    50%, 100% {
+        top: 24px;
+        height: 32px;
+    }
+}
+
+
+@media only screen and (min-width: 768px) {
+    .bizpress_blog_items{
+        max-width: 700px;
+        grid-template-columns: repeat(2,1fr);
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    .bizpress_blog_items{
+        max-width: 1400px;
+        grid-template-columns: repeat(4,1fr);
+    }
 }
