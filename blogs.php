@@ -54,8 +54,8 @@ function bizpress_blogs_page(){
     ?>
     <div class="bizpress_blogs" data-nonce="<?php echo $nonce; ?>">
         <header class="bizpress_blogs_header">
-            <h2 class="title"><?php _e('Bizpress Blogs','bizink-client'); ?></h2>
-            <p><b><?php if($options['user_email']): _e('Email','bizink-client'); ?>:</b>&nbsp;<?php echo $options['user_email']; endif; ?>&nbsp;<b><?php _e('Region','bizink-client'); ?>:</b>&nbsp;<?php echo $options['content_region']; ?></p>   
+            <h2 class="title"><img width="250" src="<?php echo plugin_dir_url(__FILE__).'/assets/img/bizpress_logo_white.png'; ?>" /><span class="text"><?php _e('Blogs','bizink-client'); ?></span></h2>
+            <p><b><?php if(empty($options['user_email']) == false): _e('Email','bizink-client'); ?>:</b>&nbsp;<?php echo $options['user_email']; endif; ?>&nbsp;<b><?php _e('Region','bizink-client'); ?>:</b>&nbsp;<?php echo $options['content_region']; ?></p>   
             <form class="bizpress_blogs_search_form">
                 <label for="bizpress_blogs_search_form_search" class="bizpress_blogs_search_form_search_label"><?php _e('Search','bizink-client'); ?></label>
                 <div class="bizpress_blogs_search_form_input_category_wrap">
@@ -76,10 +76,7 @@ function bizpress_blogs_page(){
                 <input class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_submit" id="bizpress_blogs_search_form_submit" type="submit" value="<?php _e('Search','bizink-client');?>"/>
             </form>
         </header>
-        <?php 
-        $prevPosts = get_option('bizpress_previousPosts',[]);
-        
-        ?>
+        <?php $prevPosts = get_option('bizpress_previousPosts',[]); ?>
         <section id="bizpress_blogs_posts" class="bizpress_blogs_posts" data-posts='<?php echo json_encode($prevPosts); ?>' data-page="<?php echo $_GET['blogpage'] ? $_GET['blogpage'] : 1; ?>" data-totalpages="<?php echo $postResponce['totalPages']; ?>">
             <div class="bizpress_blogs_pagenation">
                 <div class="pagenation">

@@ -25,6 +25,9 @@
     color:#fefefe;
     font-size: 2rem;
     font-family: 'Quicksand','Roboto', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .bizpress_blogs .bizpress_blogs_search_form{

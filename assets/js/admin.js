@@ -48,6 +48,7 @@ function eventBindings(){
                         let prevPosts = $('.bizpress_blogs_posts').data('posts');
                         prevPosts.push(parseInt($(this).data('id')));
                         $('.bizpress_blogs_posts').data('posts',prevPosts);
+                        $('.bizpress_blogs_posts').attr('data-posts',prevPosts);
                     }
                     else{
                         $('#bizpress_blogs_addpost_model .close_model').prop('disabled', false);
