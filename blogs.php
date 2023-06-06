@@ -27,8 +27,8 @@ add_action('admin_enqueue_scripts', 'bizpress_blogs_plugin_scripts');
 add_action('init', 'bizpress_blogs_menu');
 function bizpress_blogs_menu(){
     add_menu_page(
-        'Bizpress Blogs',
-        'Bizpress Blogs',
+        'BizPress Blogs',
+        'BizPress Blogs',
         'edit_posts',
         'bizpress_blogs',
         'bizpress_blogs_page',

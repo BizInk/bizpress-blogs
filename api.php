@@ -12,7 +12,8 @@ $bizinkcontent_client = array(
     'httpversion' => '1.1',
     'headers' => array(
       'Content-Type' => 'application/json',
-      'Authorization' => 'Bearer gvATLaalwnQoiZZsAcsHfqVMotLtgJCnWOGSTHvt'
+      'Accept' => 'application/json',
+      'Authorization' => 'Bearer OSEgUIcnTnaLAPTjkbVtwrwZzMqkpywTIYzZMnpB'
     )
 );
 function bizinkblogs_getCategories(){
