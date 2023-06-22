@@ -3,7 +3,7 @@ Contributors: Bizink,Jayden Major
 Tags: Bizink, Bizpress, business content, marketing
 Requires at least: 5.6
 Tested up to: 6.2.2
-Stable tag: 1.1.1
+Stable tag: 1.2
 Requires PHP: 7.4
 
 Display business content on your website that is automatically updated by the Bizink team.
@@ -20,6 +20,15 @@ Display business content on your website that is automatically updated by the Bi
 - Bizpress Blogs
 
 == Changelog ==
+
+= 1.2 =
+* User WordPress nameing scheme - Changed Article to post
+* Added support for posts regions
+* Better Search functionality
+* Better support for post categories
+* Better UI for adding blogs
+* New background image for the blogs page
+* Context when no blogs are found
 
 = 1.1.1 =
 * Add BizPress Anylitics

@@ -24,6 +24,10 @@ function eventBindings(){
             $('#bizpress_blogs_model').addClass('show');
         });
 
+        $('.view_post').click(function(){
+            window.open(bizpress_blogs_ajax_object.posturl+'?post='+$(this).data('id')+'&action=edit','_blank');
+        });
+
         $('.import_article').click(function(){
             $(this).parent().parent().addClass('post_in_library');
             $('#bizpress_blogs_addpost_model .article_title').text($(this).data('title'));
@@ -44,7 +48,7 @@ function eventBindings(){
                         $('#bizpress_blogs_addpost_model .close_model').prop('disabled', false);
                         $('#bizpress_blogs_addpost_model .model_close').show();
                         $('#bizpress_blogs_addpost_model .loader_section').hide();
-                        $('#bizpress_blogs_addpost_model .view_article').data('id',response.post_id);
+                        $('#bizpress_blogs_addpost_model .view_post').data('id',response.post_id);
                         let prevPosts = $('.bizpress_blogs_posts').data('posts');
                         prevPosts.push(parseInt($(this).data('id')));
                         $('.bizpress_blogs_posts').data('posts',prevPosts);
@@ -80,6 +84,27 @@ function eventBindings(){
 }
 
 jQuery(document).ready(function($){
+
+    // Background Header Image
+    let headerImageNumber = Math.floor(Math.random() * 10) + 1;
+    $('.bizpress_blogs .bizpress_blogs_header').removeClass([ 'bg1','bg2', 'bg3']);
+    switch(headerImageNumber){
+        case 1:
+            $('.bizpress_blogs .bizpress_blogs_header').addClass('bg1');
+            $('.bizpress_blogs .bizpress_blogs_header .photocredit a').text('Danny Postma');
+            $('.bizpress_blogs .bizpress_blogs_header .photocredit a').attr('href','https://unsplash.com/@dannypostma?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText');
+            break;
+        case 3:
+            $('.bizpress_blogs .bizpress_blogs_header').addClass('bg3');
+            $('.bizpress_blogs .bizpress_blogs_header .photocredit a').text("Ken Cheung");
+            $('.bizpress_blogs .bizpress_blogs_header .photocredit a').attr('href','https://unsplash.com/@kencheungphoto?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText');
+            break;
+        default:
+            $('.bizpress_blogs .bizpress_blogs_header').addClass('bg2');
+            $('.bizpress_blogs .bizpress_blogs_header .photocredit a').text("Graham Holtshausen");
+            $('.bizpress_blogs .bizpress_blogs_header .photocredit a').attr('href','https://unsplash.com/@freedomstudios?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText');
+            break;
+    }
 
     eventBindings();
 
@@ -127,6 +152,41 @@ jQuery(document).ready(function($){
                 $('#main_loader_section').hide();
                 $('.bizpress_blogs_posts .bizpress_blog_items').show();
                 if(response.status == 'success'){
+                    // Paganation
+                    $('.pagenation_page_button').each(function(){
+                        $(this).remove();
+                    });
+
+                    $('.bizpress_blogs_posts').data('page',response.page);
+                    $('.bizpress_blogs_posts').data('totalpages',response.totalpages);
+                    if(response.totalpages > 10){
+                        let i = 0;
+                        while(i < response.totalpages){
+                            let selected = '';
+                            if(i == response.page - 1){ selected = 'selected'; }
+                            $('.pagenation_pages').append('<button class="pagenation_page_button '+selected+'" data-page="'+(i+1)+'">'+(i+1)+'</button>');
+                            i++;
+                        }
+                    }
+                    else{
+                        let has_echo_elipics = false;
+                        let i = 0;
+                        while(i < response.totalpages){
+                            let selected = '';
+                            if(i == response.page - 1){ selected = 'selected'; }
+
+                            if(i < 4 || i > response.totalpages - 2){
+                                $('.pagenation_pages').append('<button class="pagenation_page_button '+selected+'" data-page="'+(i+1)+'">'+(i+1)+'</button>');
+                            }
+                            else{
+                                has_echo_elipics = true;
+                                $('.pagenation_pages').append('<div class="pagenation_elipics_button"><span class="pagenation_button_text">...</span></div>');
+                            }
+                            i++;
+                        }
+                    }
+
+                    // Blogs
                     $('.blog').each(function(){
                         $(this).remove();
                     });
@@ -158,6 +218,7 @@ jQuery(document).ready(function($){
                     $("#bizink_blogs_loader").hide();
                     $('#main_loader_section').hide();
                     $('.bizpress_blogs_posts .bizpress_blog_items').show();
+                    console.log(response);
                     let message = response.message ? response.message : 'Sorry we are unable to retreve and blog posts at this time';
                     $('.bizpress_blogs_pagenation').before('<p class="bizpress_blog_status bizpress_blog_status_error">'+message+'</p>');
                     setTimeout(() => {
@@ -166,6 +227,7 @@ jQuery(document).ready(function($){
                 }
             },
             error: function(response){
+                console.log(response);
                 let message = response.message ? response.message : 'Sorry we are unable to retreve and blog posts at this time';
                 $('.bizpress_blogs_pagenation').before('<p class="bizpress_blog_status bizpress_blog_status_error">'+message+'</p>');
                 $("#bizink_blogs_loader").hide();

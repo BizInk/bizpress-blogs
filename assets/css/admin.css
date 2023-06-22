@@ -1,5 +1,13 @@
 /* Bizpress Blogs */
-@import url('https://fonts.googleapis.com/css2?family=Quicksand&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?&family=Quicksand&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+.toplevel_page_bizpress_blogs #wpbody-content .notice{
+    display: none;
+}
+
+.toplevel_page_bizpress_blogs #wpfooter{
+    position: relative;
+}
 
 .bizpress_blogs{
     margin-left: -20px;
@@ -10,24 +18,64 @@
 }
 
 .bizpress_blogs .bizpress_blogs_header{
-    background: linear-gradient(to bottom, rgba(51, 59, 97, 0.52), rgba(51, 59, 97, 0.73)), url('../img/bg.jpg') center;
+    background: linear-gradient(to bottom, rgba(51, 59, 97, 0.7), rgba(51, 59, 97, 1));
     background-size: cover;
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    min-height: 400px;
+    min-height: 450px;
+    position: relative;
+}
+.bizpress_blogs .bizpress_blogs_header.bg1{
+    background: linear-gradient(to bottom, rgba(51, 59, 97, 0.52), rgba(51, 59, 97, 0.73)), url('../img/bg.jpg') center no-repeat;
+    background-size: cover;
+}
+.bizpress_blogs .bizpress_blogs_header.bg2{
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url('../img/bg2.jpg') center no-repeat;
+    background-size: cover;
+}
+.bizpress_blogs .bizpress_blogs_header.bg3{
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url('../img/bg3.jpg') center bottom no-repeat;
+    background-size: cover;
+}
+
+.bizpress_blogs .bizpress_blogs_header .photocredit{
+    background-color: #000;
+    padding: 1rem;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    opacity: 0.8;
+    border-radius: 6px 0 0 0;
+}
+.bizpress_blogs .bizpress_blogs_header .photocredit p{
+    color: #fefefe;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.8rem;
+    text-align: center;
+    margin: 0;
+}
+.bizpress_blogs .bizpress_blogs_header .photocredit p a{
+    color: #fefefe;
+    text-decoration: none;
 }
 
 .bizpress_blogs .bizpress_blogs_header h2{
     text-align:center;
     color:#fefefe;
-    font-size: 2rem;
-    font-family: 'Quicksand','Roboto', sans-serif;
+    font-size: 2.8rem;
+    font-family: 'Roboto', sans-serif;
     display: flex;
     align-items: center;
     gap: 1rem;
+}
+
+.bizpress_blogs .bizpress_blogs_header .logo .by{
+    font-size: 1rem;
+    font-family: 'Quicksand', sans-serif;
+    margin-right:0.1rem;
 }
 
 .bizpress_blogs .bizpress_blogs_search_form{
@@ -39,7 +87,7 @@
 
 .bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_search_label{
     display: none;
-    font-family: 'Quicksand','Roboto', sans-serif;
+    font-family: 'Quicksand', sans-serif;
 }
 
 .bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input{
@@ -51,7 +99,7 @@
     padding:0.6rem 0.9rem;
     border-radius: 0;
     margin:0;
-    font-family: 'Quicksand','Roboto', sans-serif;
+    font-family: 'Quicksand', sans-serif;
 }
 .bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input_category{
     width:100%;
@@ -124,14 +172,22 @@
     border-radius: 3px;
     border:none;
     border:1px solid #333B61;
-    font-family: 'Quicksand','Roboto', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     cursor: pointer;
+}
+.bizpress_blogs_button:hover{
+    color: #333B61;
+    background-color:#fefefe;
 }
 
 .bizpress_blogs_button_secondary{
     color: #333B61;
     background-color:#fefefe;
     border:1px solid #333B61;
+}
+.bizpress_blogs_button_secondary:hover{
+    background-color: #333B61;
+    color:#fefefe;
 }
 
 .bizpress_blog_items .blog .blog_text .blog_title{
@@ -179,6 +235,12 @@
     top:48%;
 }
 
+.bizpress_blog_items .blog .actions{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
 .bizpress_blogs_model{
     display: none;
     position: fixed;
@@ -221,17 +283,14 @@
     border-radius: 4px;
 }
 .bizpress_blogs_model .model .model_content::-webkit-scrollbar{
-    width: 1rem;
-    border-radius: 4px;
+    width: 0.8rem;
 }
 .bizpress_blogs_model .model .model_content::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    border-radius: 4px;
 }
 .bizpress_blogs_model .model .model_content::-webkit-scrollbar-thumb {
     background-color: darkgrey;
     outline: 1px solid slategrey;
-    border-radius: 4px;
 }
 .bizpress_blogs_model .model .model_actions{
     margin-top: 1rem;
@@ -255,6 +314,17 @@
 }
 .bizpress_blogs_model .article_title,
 .bizpress_blogs_model .article_status{
+    text-align: center;
+}
+
+.bizpress_blogs .no_posts{
+    max-width: 600px;
+    margin: auto;
+    text-align: center;
+    margin-top: 1rem;
+}
+.bizpress_blogs .no_posts p{
+    font-size: 1rem;
     text-align: center;
 }
 
@@ -291,7 +361,7 @@
     border-radius: 3px;
     border:none;
     border:1px solid #333B61;
-    font-family: 'Quicksand','Roboto', sans-serif;
+    font-family: 'Quicksand', sans-serif;
 }
 
 .bizpress_blogs_button:disabled,
@@ -358,7 +428,6 @@
         height: 32px;
     }
 }
-
 
 @media only screen and (min-width: 768px) {
     .bizpress_blog_items{

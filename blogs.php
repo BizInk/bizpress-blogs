@@ -19,7 +19,7 @@ function bizpress_blogs_plugin_scripts($hook){
         return;
     }
     wp_register_script('bizpress_blogs_script',plugins_url( 'assets/js/admin.js', __FILE__ ),['jquery','wp-i18n']);
-    wp_localize_script('bizpress_blogs_script', 'bizpress_blogs_ajax_object',array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
+    wp_localize_script('bizpress_blogs_script', 'bizpress_blogs_ajax_object',array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'posturl' => admin_url('post.php') ) );
     wp_enqueue_script('bizpress_blogs_script');
 }
 add_action('admin_enqueue_scripts', 'bizpress_blogs_plugin_scripts');
@@ -38,46 +38,76 @@ function bizpress_blogs_menu(){
 }
 
 function bizpress_blogs_page(){
-    $categories = false;
-    $categories = bizinkblogs_getCategories();
+    $product = bizpress_blogs_product_status();
     $args = array(
         'status' => 'publish',
         'per_page' => 8,
-        'page' => isset($_GET['blogpage']) ? $_GET['blogpage'] : 1
+        'tax_relation' => 'AND',
+        '_fields' => 'id,title,content,sticky,excerpt,link,featured_media,featured_image,date,modified,slug,categories,region',
+        'page' => isset($_REQUEST['blogpage']) ? $_REQUEST['blogpage'] : 1
     );
-    $postResponce = bizinkblogs_getPosts($args);
+
     $options = get_option('bizink-client_basic');
     if(empty($options['content_region'])){
 		$options['content_region'] = 'au';
 	}
+    $regionIDs = get_transient('bizpress_blog_regions');
+    if(empty($regionIDs)){
+        $regionIDs = bizpress_blogs_get_regons();
+    }
+    $myRegionID = 0;
+    foreach($regionIDs as $region){
+        if(strtolower($region->slug) == strtolower($options['content_region'])){
+            $myRegionID = $region->id;
+        }
+    }
+    $categories = false;
+    $categories = bizinkblogs_getCategories();
+    $search = isset($_REQUEST['search']) ? $_REQUEST['search'] : false;
+    $category = isset($_REQUEST['category']) ? $_REQUEST['category'] : false;
+
+    if(!empty($search)) $args = array_merge(array('search' => $search),$args);
+    if(!empty($category) && $category != 'all' && $category != 'other') $args = array_merge(array('categories' => $category),$args);
+    if(!empty($myRegionID) && $myRegionID != 0) $args = array_merge(array('region' => $myRegionID),$args);
+
+    $postResponce = bizinkblogs_getPosts($args);
     $nonce = wp_create_nonce("bizpress_blogs");
     ?>
     <div class="bizpress_blogs" data-nonce="<?php echo $nonce; ?>">
-        <header class="bizpress_blogs_header">
-            <h2 class="title"><img width="250" src="<?php echo plugin_dir_url(__FILE__).'/assets/img/bizpress_logo_white.png'; ?>" /><span class="text"><?php _e('Blogs','bizink-client'); ?></span></h2>
-            <p><b><?php if(empty($options['user_email']) == false): _e('Email','bizink-client'); ?>:</b>&nbsp;<?php echo $options['user_email']; endif; ?>&nbsp;<b><?php _e('Region','bizink-client'); ?>:</b>&nbsp;<?php echo $options['content_region']; ?></p>   
+        <header class="bizpress_blogs_header bg2">
+            <h2 class="title"><span class="text"><?php _e('BizPress Blogs','bizink-client'); ?></span> <div class="logo"><span class="by"><?php _e('By','bizink-content');?></span><img src="<?php echo plugin_dir_url(__FILE__); ?>/assets/img/bizink-logo-white.png" height="18" alt="Bizink"/></div></h2>
+            <p><b><?php if(empty($options['user_email']) == false): _e('Email:','bizink-client'); ?></b>&nbsp;<?php echo $options['user_email']; endif; ?>&nbsp;<b><?php _e('Region:','bizink-client'); ?></b>&nbsp;<?php echo $options['content_region']; ?>
+        &nbsp;<?php if($product['canAddBlogs']): ?><b><?php _e('Bizpress Product:','bizink-client'); ?></b><?php endif;?>
+        </p>   
             <form class="bizpress_blogs_search_form">
+                <input type="hidden" name="page" value="bizpress_blogs" />
                 <label for="bizpress_blogs_search_form_search" class="bizpress_blogs_search_form_search_label"><?php _e('Search','bizink-client'); ?></label>
                 <div class="bizpress_blogs_search_form_input_category_wrap">
-                    <select id="bizpress_blogs_category" name="category" class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_category">
-                        <option value="all"><?php _e('All','bizpress');?></option>
+                    <select id="bizpress_blogs_category" name="category" class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_category" aria-label="Select Category">
+                        <option value="all"><?php _e('All Posts','bizpress');?></option>
                         <?php
                             if(empty($categories) == false){
                                 foreach(bizinkblogs_getCategories() as $category){
                                     if($category->slug != 'uncategorized'): //uncategorized
-                                    echo '<option value="'.__($category->slug,'bizpress').'">'.__($category->name,'bizpress').'</option>';
+                                        if($category->id == $_REQUEST['category']) $selected = 'selected';
+                                        else $selected = '';
+                                        echo '<option value="'.$category->id.'" '.$selected.'>'.__($category->name,'bizink-content').'</option>';
                                     endif;
                                 }
                             }
                         ?>
                     </select>
                 </div>
-                <input class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_search" id="bizpress_blogs_search_form_search" type="search" placeholder="<?php _e('Search for Articles, Digests & News','bizink-client');?>" name="search"/>
+                <input class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_search" id="bizpress_blogs_search_form_search" type="search" placeholder="<?php _e('Search for blog topics','bizink-client');?>" name="search" <?php if(!empty($_GET['search'])){echo 'value="'.$_GET['search'].'"';} ?>/>
                 <input class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_submit" id="bizpress_blogs_search_form_submit" type="submit" value="<?php _e('Search','bizink-client');?>"/>
             </form>
+            <div class="photocredit">
+                <p><?php _e('Photo Credit:','bizink-content');?> <a target="_blank" href="https://unsplash.com/@freedomstudios">Graham Holtshausen</a></p>
+            </div>
         </header>
         <?php $prevPosts = get_option('bizpress_previousPosts',[]); ?>
         <section id="bizpress_blogs_posts" class="bizpress_blogs_posts" data-posts='<?php echo json_encode($prevPosts); ?>' data-page="<?php echo $_GET['blogpage'] ? $_GET['blogpage'] : 1; ?>" data-totalpages="<?php echo $postResponce['totalPages']; ?>">
+            <?php if(empty($postResponce['posts']) == false): ?>
             <div class="bizpress_blogs_pagenation">
                 <div class="pagenation">
                     <button type="button" disabled class="pagenation_button prev_button"><span class="pagenation_button_text"><?php _e('Previous','bizink-client'); ?></span></button>
@@ -118,12 +148,13 @@ function bizpress_blogs_page(){
                     <button type="button" class="pagenation_button next_button"><span class="pagenation_button_text"><?php _e('Next','bizink-client'); ?></span></button>
                 </div>
             </div>
+            <?php endif; ?>
             <div id="main_loader_section" class="loader_section">
                 <div id="bizink_blogs_loader" class="bizink_blogs_loader"><div></div><div></div><div></div></div>
             </div>
-            <div id="bizpress_blog_items" class="bizpress_blog_items">
                 <?php
-                if(empty($postResponce['posts']) == false): 
+                if(empty($postResponce['posts']) == false):
+                    echo '<div id="bizpress_blog_items" class="bizpress_blog_items">';
                     foreach($postResponce['posts'] as $post):
                 ?>
                     <div class="blog <?php if(in_array($post->id,$prevPosts)){echo 'post_in_library';} ?>" id="bizpress_blog_<?php echo $post->id; ?>" data-slug="<?php echo $post->slug; ?>" data-id="<?php echo $post->id; ?>" data-title="<?php echo $post->title->rendered; ?>">
@@ -135,8 +166,8 @@ function bizpress_blogs_page(){
                             </div>
                         </div>
                         <div class="actions">
-                            <button type="button" class="bizpress_blogs_button view_article"><?php _e('View Article','bizink-client'); ?></button>
-                            <button type="button" class="bizpress_blogs_button bizpress_blogs_button_secondary import_article" data-id="<?php echo $post->id; ?>" data-title="<?php echo $post->title->rendered; ?>"><?php _e('Import Article','bizink-client'); ?></button>
+                            <button type="button" class="bizpress_blogs_button view_article"><?php _e('View Post','bizink-client'); ?></button>
+                            <button type="button" class="bizpress_blogs_button bizpress_blogs_button_secondary import_article" data-id="<?php echo $post->id; ?>" data-title="<?php echo $post->title->rendered; ?>"><?php _e('Import Post','bizink-client'); ?></button>
                         </div>
                         <div class="content" style="display: none;" onmousedown="return false" onselectstart="return false">
                             <?php echo $post->content->rendered; ?>
@@ -144,6 +175,37 @@ function bizpress_blogs_page(){
                     </div>
                 <?php 
                     endforeach;
+                    echo '</div>';
+                else:
+                    ?>
+                    <div class="no_posts">
+                        <p><?php 
+                        if(empty($_REQUEST['category']) || $_REQUEST['category'] == 'all'){
+                            // No Category
+                            if(empty($_REQUEST['search'])){ // No Category No Search
+                                _e('Sorry no posts were found','bizink-client');
+                            }
+                            else{ // No Category With Search
+                                echo sprintf(__('Sorry no posts were found for the search term <b>\'%s\'</b>','bizink-client'),$_REQUEST['search']);
+                            }
+                        }
+                        else{
+                            // With Category
+                            if(empty($_REQUEST['search'])){ // With Category No Search
+                                _e('Sorry no posts were found in this category','bizink-client');
+
+                            }
+                            else{ // With Category With Search
+                                foreach(bizinkblogs_getCategories() as $category){
+                                    if($category->id == $_REQUEST['category']){
+                                        echo sprintf(__('Sorry no posts were found for the search term <b>\'%s\'</b> in the category <b>\'%s\'</b>','bizink-client'),$_REQUEST['search'],$category->name);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        ?></p>
+                    <?php
                 endif;
                 ?>
             </div>
@@ -154,7 +216,7 @@ function bizpress_blogs_page(){
                     <div class="model_content model_content_blog" onmousedown="return false" onselectstart="return false">
                     </div>
                     <div class="model_actions">
-                        <button class="bizpress_blogs_button import_model import_article" data-id="" data-title=""><?php _e('Import Article','bizink-client'); ?></button>
+                        <button class="bizpress_blogs_button import_model import_article" data-id="" data-title=""><?php _e('Import Post','bizink-client'); ?></button>
                         <button type="button" class="bizpress_blogs_button bizpress_blogs_button_secondary close_model"><?php _e('Close','bizink-client'); ?></button>
                     </div>
                 </div>
@@ -162,7 +224,7 @@ function bizpress_blogs_page(){
             <div class="bizpress_blogs_model" id="bizpress_blogs_addpost_model">
                 <div class="model">
                     <div class="model_close close_model"><span class="model_close_x">X</span></div>
-                    <h2 class="model_title"><?php _e('Adding Article','bizink-client'); ?></h2>
+                    <h2 class="model_title"><?php _e('Adding Post','bizink-client'); ?></h2>
                     <div class="model_content">
                         <div class="details">
                             <h3 class="article_title"></h3>
@@ -173,7 +235,7 @@ function bizpress_blogs_page(){
                         </div>
                     </div>
                     <div class="model_actions">
-                        <button disabled class="bizpress_blogs_button view_model view_article" data-postid="0"><?php _e('View Article','bizink-client'); ?></button>
+                        <button disabled class="bizpress_blogs_button view_model view_post"><?php _e('View Post','bizink-client'); ?></button>
                         <button disabled type="button" class="bizpress_blogs_button bizpress_blogs_button_secondary close_model"><?php _e('Close','bizink-client'); ?></button>
                     </div>
                 </div>
