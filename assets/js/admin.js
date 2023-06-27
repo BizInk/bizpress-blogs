@@ -42,6 +42,7 @@ function eventBindings(){
                     action: 'bizpressblogsarticle'
                 },
                 success: function(response){
+                    $('#remainingCount').text(parseInt($('#remainingCount').text())-1);
                     $('.article_status').text(response.message);
                     if(response.status == 'success'){
                         $('#bizpress_blogs_addpost_model .view_model').prop('disabled', false);

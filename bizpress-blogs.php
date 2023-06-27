@@ -27,4 +27,4 @@ $myUpdateChecker->setBranch('main');
 // Using a private repository, specify the access token 
 $myUpdateChecker->setAuthentication('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');
 
-require 'blogs.php';
+include 'blogs.php';

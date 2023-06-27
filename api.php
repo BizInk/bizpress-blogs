@@ -153,6 +153,7 @@ function bizpress_blogs_addarticle_ajax(){
                         'bizpress_slug' => $body->slug
                     )
                 ));
+                update_option('bizpress_blog_count',get_option('bizpress_blog_count',0)+1);
 
                 // categories
                 if(!empty($body->categories)){

@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require 'api.php';
+include 'api.php';
 
 function bizpress_blogs_plugin_styles($hook) {
 	wp_register_style( 'bizpress_blogs_css', plugins_url( 'assets/css/admin.css', __FILE__ ) );
@@ -39,6 +39,13 @@ function bizpress_blogs_menu(){
 
 function bizpress_blogs_page(){
     $product = bizpress_blogs_product_status();
+    $productType = 'BizPress Basic';
+    if($product['product']['bizpress_premium'] == true){
+        $productType = 'BizPress Premium';
+    }
+    elseif($product['product']['bizpress_standard'] == true){
+        $productType = 'BizPress Standard';
+    }
     $args = array(
         'status' => 'publish',
         'per_page' => 8,
@@ -77,8 +84,11 @@ function bizpress_blogs_page(){
         <header class="bizpress_blogs_header bg2">
             <h2 class="title"><span class="text"><?php _e('BizPress Blogs','bizink-client'); ?></span> <div class="logo"><span class="by"><?php _e('By','bizink-content');?></span><img src="<?php echo plugin_dir_url(__FILE__); ?>/assets/img/bizink-logo-white.png" height="18" alt="Bizink"/></div></h2>
             <p><b><?php if(empty($options['user_email']) == false): _e('Email:','bizink-client'); ?></b>&nbsp;<?php echo $options['user_email']; endif; ?>&nbsp;<b><?php _e('Region:','bizink-client'); ?></b>&nbsp;<?php echo $options['content_region']; ?>
-        &nbsp;<?php if($product['canAddBlogs']): ?><b><?php _e('Bizpress Product:','bizink-client'); ?></b><?php endif;?>
-        </p>   
+         <?php if($product['canAddBlogs']): ?><b><?php _e('Product:','bizink-client'); ?></b>&nbsp;<?php _e($productType,'bizink-client'); endif;?>
+        </p>
+        <?php if($product['canAddBlogs']): ?>
+        <p><b><?php _e('Posts Per Month:','bizink-client'); ?></b>&nbsp;<?php echo $product['limmit']; ?>&nbsp;<b><?php _e('Remaining Posts:','bizpress-client'); ?></b>&nbsp;<span id="remainingCount"><?php echo intval($product['limmit']) - intval($product['currentCount']); ?></span></p>
+        <?php endif; ?>
             <form class="bizpress_blogs_search_form">
                 <input type="hidden" name="page" value="bizpress_blogs" />
                 <label for="bizpress_blogs_search_form_search" class="bizpress_blogs_search_form_search_label"><?php _e('Search','bizink-client'); ?></label>

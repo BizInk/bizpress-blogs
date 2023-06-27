@@ -29,6 +29,7 @@ Display business content on your website that is automatically updated by the Bi
 * Better UI for adding blogs
 * New background image for the blogs page
 * Context when no blogs are found
+* Handeling of the different BizPress product levels
 
 = 1.1.1 =
 * Add BizPress Anylitics
