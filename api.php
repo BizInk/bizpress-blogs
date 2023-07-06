@@ -232,15 +232,15 @@ function bizpress_blogs_product_status(){
 	}
 
     $canAddBlogs = false;
-    if($product['bizpress_standard'] == true || $product['bizpress_premium'] == true || $luca == true){
+    if($product->bizpress_standard == true || $product->bizpress_premium == true || $luca == true){
         $canAddBlogs = true;
     }
 
     $limmit = 0;
-    if($product['bizpress_standard'] == true){
+    if($product->bizpress_standard == true){
         $limmit = 10;
     }
-    elseif($product['bizpress_premium'] == true){
+    elseif($product->bizpress_premium == true){
         $limmit = 20;
     }
     elseif($luca == true){

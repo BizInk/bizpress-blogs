@@ -40,10 +40,10 @@ function bizpress_blogs_menu(){
 function bizpress_blogs_page(){
     $product = bizpress_blogs_product_status();
     $productType = 'BizPress Basic';
-    if($product['product']['bizpress_premium'] == true){
+    if($product['product']->bizpress_premium == true){
         $productType = 'BizPress Premium';
     }
-    elseif($product['product']['bizpress_standard'] == true){
+    elseif($product['product']->bizpress_standard == true){
         $productType = 'BizPress Standard';
     }
     $args = array(
