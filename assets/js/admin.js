@@ -29,8 +29,8 @@ function eventBindings(){
         });
 
         $('.import_article').click(function(){
-            $(this).parent().parent().addClass('post_in_library');
-            $('#bizpress_blogs_addpost_model .article_title').text($(this).data('title'));
+            let importedArticle = $(this);
+            $('#bizpress_blogs_addpost_model .article_title').text(importedArticle.data('title'));
             $("#bizpress_blogs_addpost_model").addClass('show');
             $('#bizpress_blogs_addpost_model .model_close').hide();
             $.ajax({
@@ -41,10 +41,10 @@ function eventBindings(){
                     bizpressPostID: $(this).data('id'),
                     action: 'bizpressblogsarticle'
                 },
-                success: function(response){
-                    $('#remainingCount').text(parseInt($('#remainingCount').text())-1);
+                success: function(response){                    
                     $('.article_status').text(response.message);
                     if(response.status == 'success'){
+                        importedArticle.parent().parent().addClass('post_in_library');
                         $('#bizpress_blogs_addpost_model .view_model').prop('disabled', false);
                         $('#bizpress_blogs_addpost_model .close_model').prop('disabled', false);
                         $('#bizpress_blogs_addpost_model .model_close').show();
@@ -54,6 +54,7 @@ function eventBindings(){
                         prevPosts.push(parseInt($(this).data('id')));
                         $('.bizpress_blogs_posts').data('posts',prevPosts);
                         $('.bizpress_blogs_posts').attr('data-posts',prevPosts);
+                        $('#remainingCount').text(response.currentCount);
                     }
                     else{
                         $('#bizpress_blogs_addpost_model .close_model').prop('disabled', false);
@@ -62,7 +63,8 @@ function eventBindings(){
                     }
                 },
                 error: function(response){
-                    $('.article_status').text("Sorry there was and error when adding the post");
+                    console.log("Bizpress Blogs: " + response.responseJSON.message);
+                    $('.article_status').text(response.responseJSON.message ? response.responseJSON.message : "Sorry there was and error when adding the post");
                     $('#bizpress_blogs_addpost_model .close_model').prop('disabled', false);
                     $('#bizpress_blogs_addpost_model .model_close').show();
                     $('#bizpress_blogs_addpost_model .loader_section').hide();
@@ -157,31 +159,32 @@ jQuery(document).ready(function($){
                     $('.pagenation_page_button').each(function(){
                         $(this).remove();
                     });
-
-                    $('.bizpress_blogs_posts').data('page',response.page);
-                    $('.bizpress_blogs_posts').data('totalpages',response.totalpages);
-                    if(response.totalpages > 10){
+                    let totalPages = parseInt(response.totalPages);
+                    $('.bizpress_blogs_posts').data('totalpages',totalPages);
+                    if(totalPages < 10){
                         let i = 0;
-                        while(i < response.totalpages){
+                        while(i < totalPages){
                             let selected = '';
-                            if(i == response.page - 1){ selected = 'selected'; }
-                            $('.pagenation_pages').append('<button class="pagenation_page_button '+selected+'" data-page="'+(i+1)+'">'+(i+1)+'</button>');
+                            if(i == (parseInt(page) - 1) ){
+                                selected = 'selected';
+                            }
+                            $('.pagenation_pages').append('<button type="button" data-page="'+(i+1)+'" class="pagenation_button pagenation_page_button '+selected+'">'+(i+1)+'</button>');
                             i++;
                         }
                     }
                     else{
                         let has_echo_elipics = false;
                         let i = 0;
-                        while(i < response.totalpages){
+                        while(i < totalPages){
                             let selected = '';
-                            if(i == response.page - 1){ selected = 'selected'; }
+                            if(i == page - 1){ selected = 'selected'; }
 
-                            if(i < 4 || i > response.totalpages - 2){
-                                $('.pagenation_pages').append('<button class="pagenation_page_button '+selected+'" data-page="'+(i+1)+'">'+(i+1)+'</button>');
+                            if(i < 4 || i > totalPages - 2){
+                                $('.pagenation_pages').append('<button type="button" class="pagenation_button pagenation_page_button '+selected+'" data-page="'+(i+1)+'">'+(i+1)+'</button>');
                             }
                             else{
                                 has_echo_elipics = true;
-                                $('.pagenation_pages').append('<div class="pagenation_elipics_button"><span class="pagenation_button_text">...</span></div>');
+                                $('.pagenation_pages').append('<div type="button" class="pagenation_button pagenation_elipics_button"><span class="pagenation_button_text">...</span></div>');
                             }
                             i++;
                         }
@@ -266,13 +269,12 @@ jQuery(document).ready(function($){
         getBlogs();
     });
     $('.pagenation_page_button').click(function(){
-        setPage($(this).data('page'));
-        getBlogs();
+        if(setPage($(this).data('page'))){
+            getBlogs();
+        }
     });
     $('.prev_button').click(function(){
-        let page = $('.bizpress_blogs_posts').data('page') - 1;
-        if(page > 0){
-            setPage(page);
+        if(setPage(($('.bizpress_blogs_posts').data('page') - 1))){
             getBlogs();
         }
         else{
@@ -280,10 +282,7 @@ jQuery(document).ready(function($){
         }
     });
     $('.next_button').click(function(){
-        let totalpages = $('.bizpress_blogs_posts').data('totalpages');
-        let page = $('.bizpress_blogs_posts').data('page') + 1;
-        if(page < (totalpages + 1)){
-            setPage(page);
+        if(setPage(($('.bizpress_blogs_posts').data('page') + 1))){
             getBlogs();
         }
         else{

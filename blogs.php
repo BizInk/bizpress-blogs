@@ -51,7 +51,7 @@ function bizpress_blogs_page(){
         'per_page' => 8,
         'tax_relation' => 'AND',
         '_fields' => 'id,title,content,sticky,excerpt,link,featured_media,featured_image,date,modified,slug,categories,region',
-        'page' => isset($_REQUEST['blogpage']) ? $_REQUEST['blogpage'] : 1
+        'page' => $_GET['blogpage'] ?? 1
     );
 
     $options = get_option('bizink-client_basic');
@@ -87,7 +87,7 @@ function bizpress_blogs_page(){
          <?php if($product['canAddBlogs']): ?><b><?php _e('Product:','bizink-client'); ?></b>&nbsp;<?php _e($productType,'bizink-client'); endif;?>
         </p>
         <?php if($product['canAddBlogs']): ?>
-        <p><b><?php _e('Posts Per Month:','bizink-client'); ?></b>&nbsp;<?php echo $product['limmit']; ?>&nbsp;<b><?php _e('Remaining Posts:','bizpress-client'); ?></b>&nbsp;<span id="remainingCount"><?php echo intval($product['limmit']) - intval($product['currentCount']); ?></span></p>
+        <p><b><?php _e('Posts Per Month:','bizink-client'); ?></b>&nbsp;<?php echo $product['limit']; ?>&nbsp;<b><?php _e('Remaining Posts:','bizpress-client'); ?></b>&nbsp;<span id="remainingCount"><?php echo $product['currentCount']; ?></span></p>
         <?php endif; ?>
             <form class="bizpress_blogs_search_form">
                 <input type="hidden" name="page" value="bizpress_blogs" />
@@ -115,19 +115,30 @@ function bizpress_blogs_page(){
                 <p><?php _e('Photo Credit:','bizink-content');?> <a target="_blank" href="https://unsplash.com/@freedomstudios">Graham Holtshausen</a></p>
             </div>
         </header>
-        <?php $prevPosts = get_option('bizpress_previousPosts',[]); ?>
-        <section id="bizpress_blogs_posts" class="bizpress_blogs_posts" data-posts='<?php echo json_encode($prevPosts); ?>' data-page="<?php echo $_GET['blogpage'] ? $_GET['blogpage'] : 1; ?>" data-totalpages="<?php echo $postResponce['totalPages']; ?>">
+        <?php 
+        $prevPosts = get_option('bizpress_previousPosts',[]);
+        if($postResponce['status'] == 'error'):
+            ?>
+            <section class="bizpress_blogs_error">
+                <div class="error_text">
+                    <p><?php echo $postResponce['message']; ?></p>
+                </div>
+            </section>
+            <?php
+        else:
+        ?>
+        <section id="bizpress_blogs_posts" class="bizpress_blogs_posts" data-posts='<?php echo json_encode($prevPosts); ?>' data-page="<?php echo $_GET['blogpage'] ?? 1; ?>" data-totalpages="<?php echo $postResponce['totalPages']; ?>">
             <?php if(empty($postResponce['posts']) == false): ?>
             <div class="bizpress_blogs_pagenation">
                 <div class="pagenation">
-                    <button type="button" disabled class="pagenation_button prev_button"><span class="pagenation_button_text"><?php _e('Previous','bizink-client'); ?></span></button>
+                    <button type="button" <?php if(($_GET['blogpage'] ?? 1) <= 1): echo 'disabled'; endif; ?> class="pagenation_button prev_button"><span class="pagenation_button_text"><?php _e('Previous','bizink-client'); ?></span></button>
                     <div class="pagenation_pages">
                         <?php
                         if($postResponce['totalPages'] < 10){
                             $i=1;
                             while($i <= $postResponce['totalPages']){
                                 $selected = '';
-                                if($i == 1){
+                                if($i == intval($_GET['blogpage'] ?? 1)){
                                     $selected = 'selected';
                                 }
                                 echo '<button type="button" data-page="'.$i.'" class="pagenation_button pagenation_page_button '.$selected.'"><span class="pagenation_button_text">'.$i.'</span></button>';
@@ -154,8 +165,8 @@ function bizpress_blogs_page(){
                         }
                         
                         ?>
-                    </div>
-                    <button type="button" class="pagenation_button next_button"><span class="pagenation_button_text"><?php _e('Next','bizink-client'); ?></span></button>
+                    </div> 
+                    <button type="button" <?php if($_GET['blogpage'] >= $postResponce['totalPages']): echo 'disabled'; endif; ?>  class="pagenation_button next_button"><span class="pagenation_button_text"><?php _e('Next','bizink-client'); ?></span></button>
                 </div>
             </div>
             <?php endif; ?>
@@ -251,6 +262,9 @@ function bizpress_blogs_page(){
                 </div>
             </div>
         </section>
+        <?php
+        endif;
+        ?>
     </div>
     <?php
 }
