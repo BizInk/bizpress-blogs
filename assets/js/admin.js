@@ -140,6 +140,14 @@ jQuery(document).ready(function($){
         $("#bizink_blogs_loader").show();
         $('.bizpress_blogs_posts .bizpress_blog_items').hide();
 
+        function bizpress_pagenation_button(page,selected){
+            let selected_text = '';
+            if(selected){
+                selected_text = 'selected';
+            }
+            $('.pagenation_pages').append('<button type="button" data-page="'+page+'" class="pagenation_button pagenation_page_button '+selected_text+'">'+page+'</button>');
+        }
+
         $.ajax({
             type: "post",
             dataType: "json",
@@ -161,28 +169,47 @@ jQuery(document).ready(function($){
                     });
                     let totalPages = parseInt(response.totalPages);
                     $('.bizpress_blogs_posts').data('totalpages',totalPages);
+                    let current_page = parseInt(page);
                     if(totalPages < 10){
-                        let i = 0;
+                        let i = 1;
                         while(i < totalPages){
-                            let selected = '';
-                            if(i == (parseInt(page) - 1) ){
-                                selected = 'selected';
+                            let selected = false;
+                            if(i == current_page){ 
+                                selected = true;
                             }
-                            $('.pagenation_pages').append('<button type="button" data-page="'+(i+1)+'" class="pagenation_button pagenation_page_button '+selected+'">'+(i+1)+'</button>');
+                            bizpress_pagenation_button(i,selected);
                             i++;
                         }
                     }
                     else{
                         let has_echo_elipics = false;
-                        let i = 0;
+                        let i = 1;
                         while(i < totalPages){
-                            let selected = '';
-                            if(i == page - 1){ selected = 'selected'; }
-
-                            if(i < 4 || i > totalPages - 2){
-                                $('.pagenation_pages').append('<button type="button" class="pagenation_button pagenation_page_button '+selected+'" data-page="'+(i+1)+'">'+(i+1)+'</button>');
+                            let selected = false;
+                            if(i == current_page){ 
+                                selected = true;
                             }
-                            else{
+                            
+                            if(i == current_page){
+                                bizpress_pagenation_button(i,selected);
+                            }
+                            else if(i == current_page - 1 && current_page -1 > 0){
+                                bizpress_pagenation_button(i,selected);
+                            }
+                            else if(i == current_page - 2 && current_page - 2 > 0){
+                                bizpress_pagenation_button(i,selected);
+                            }
+                            else if(i == totalPages){
+                                bizpress_pagenation_button(i,selected);
+                            }
+                            else if(i == totalPages - 1){
+                                bizpress_pagenation_button(i,selected);
+                            }
+                            else if(i == totalPages - 2 && has_echo_elipics == false){
+                                has_echo_elipics = true;
+                                $('.pagenation_pages').append('<div type="button" class="pagenation_button pagenation_elipics_button"><span class="pagenation_button_text">...</span></div>');
+                            }
+                            else if(current_page > totalPages - 2 && i == current_page - 3 && has_echo_elipics == false){
                                 has_echo_elipics = true;
                                 $('.pagenation_pages').append('<div type="button" class="pagenation_button pagenation_elipics_button"><span class="pagenation_button_text">...</span></div>');
                             }

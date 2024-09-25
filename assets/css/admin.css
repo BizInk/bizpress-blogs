@@ -441,6 +441,52 @@
     }
 }
 
+
+.bizpress_switch .bizpress_switch_checkbox{
+	display: none;
+}
+
+.bizpress_switch label {
+	cursor: pointer;
+	text-indent: -9999px;
+	width: 50px;
+	height: 25px;
+	background: grey;
+	display: block;
+	border-radius: 100px;
+	position: relative;
+}
+
+.bizpress_switch label:after {
+	content: '';
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	width: 16px;
+	height: 16px;
+	background: #fff;
+	border-radius: 50%;
+	transition: 0.3s;
+}
+
+.bizpress_switch .bizpress_switch_checkbox:checked + label {
+	background: #bada55;
+}
+
+.bizpress_switch .bizpress_switch_checkbox:checked + label:after {
+	left: calc(100% - 5px);
+	transform: translateX(-100%);
+}
+
+.bizpress_switch label:active:after {
+	width: 40px;
+}
+
+.bizpress_blogs_page_adminpagebizpress_automations .column-post_status{
+    width: 5%;
+}
+
+
 @media only screen and (min-width: 768px) {
     .bizpress_blog_items{
         max-width: 700px;

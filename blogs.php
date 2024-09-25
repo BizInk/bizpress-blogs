@@ -6,7 +6,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-include 'api.php';
+include 'inc/api.php';
+include 'inc/cpt.php';
+
+function bizpress_pagenation_button($page,$selected){
+    if($selected == 'selected'){
+        $selected_text = 'selected';
+    }
+    else{
+        $selected_text = '';
+    }
+    echo '<button type="button" data-page="'.$page.'" class="pagenation_button pagenation_page_button '.$selected_text.'"><span class="pagenation_button_text">'.$page.'</span></button>';
+}
 
 function bizpress_blogs_plugin_styles($hook) {
 	wp_register_style( 'bizpress_blogs_css', plugins_url( 'assets/css/admin.css', __FILE__ ) );
@@ -39,12 +50,12 @@ function bizpress_blogs_menu(){
 
 function bizpress_blogs_page(){
     $product = bizpress_blogs_product_status();
-    $productType = 'BizPress Basic';
+    $productType = __('BizPress Basic','bizink-client');
     if($product['product']->bizpress_premium == true){
-        $productType = 'BizPress Premium';
+        $productType = __('BizPress Premium','bizink-client');
     }
     elseif($product['product']->bizpress_standard == true){
-        $productType = 'BizPress Standard';
+        $productType = __('BizPress Standard','bizink-client');
     }
     $args = array(
         'status' => 'publish',
@@ -94,14 +105,14 @@ function bizpress_blogs_page(){
                 <label for="bizpress_blogs_search_form_search" class="bizpress_blogs_search_form_search_label"><?php _e('Search','bizink-client'); ?></label>
                 <div class="bizpress_blogs_search_form_input_category_wrap">
                     <select id="bizpress_blogs_category" name="category" class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_category" aria-label="Select Category">
-                        <option value="all"><?php _e('All Posts','bizpress');?></option>
+                        <option value="all"><?php _e('All Posts','bizink-client');?></option>
                         <?php
                             if(empty($categories) == false){
                                 foreach(bizinkblogs_getCategories() as $category){
                                     if($category->slug != 'uncategorized'): //uncategorized
                                         if($category->id == $_REQUEST['category']) $selected = 'selected';
                                         else $selected = '';
-                                        echo '<option value="'.$category->id.'" '.$selected.'>'.__($category->name,'bizink-content').'</option>';
+                                        echo '<option value="'.$category->id.'" '.$selected.'>'.__($category->name,'bizink-client').'</option>';
                                     endif;
                                 }
                             }
@@ -112,7 +123,7 @@ function bizpress_blogs_page(){
                 <input class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_submit" id="bizpress_blogs_search_form_submit" type="submit" value="<?php _e('Search','bizink-client');?>"/>
             </form>
             <div class="photocredit">
-                <p><?php _e('Photo Credit:','bizink-content');?> <a target="_blank" href="https://unsplash.com/@freedomstudios">Graham Holtshausen</a></p>
+                <p><?php _e('Photo Credit:','bizink-client');?> <a target="_blank" href="https://unsplash.com/@freedomstudios">Graham Holtshausen</a></p>
             </div>
         </header>
         <?php 
@@ -134,36 +145,55 @@ function bizpress_blogs_page(){
                     <button type="button" <?php if(($_GET['blogpage'] ?? 1) <= 1): echo 'disabled'; endif; ?> class="pagenation_button prev_button"><span class="pagenation_button_text"><?php _e('Previous','bizink-client'); ?></span></button>
                     <div class="pagenation_pages">
                         <?php
+                        $current_page = intval($_GET['blogpage'] ?? 1);
                         if($postResponce['totalPages'] < 10){
-                            $i=1;
+                            $i = 1;
                             while($i <= $postResponce['totalPages']){
-                                $selected = '';
-                                if($i == intval($_GET['blogpage'] ?? 1)){
-                                    $selected = 'selected';
+                                $selected = false;
+                                if($i == $current_page){
+                                    $selected = true;
                                 }
-                                echo '<button type="button" data-page="'.$i.'" class="pagenation_button pagenation_page_button '.$selected.'"><span class="pagenation_button_text">'.$i.'</span></button>';
+                                bizpress_pagenation_button($i,$selected);
                                 $i++;
                             }
                         }
                         else{
+                            
                             $has_echo_elipics = false;
-                            $i=1;
+                            $i = 1;
+
                             while($i <= $postResponce['totalPages']){
-                                $selected = '';
-                                if($i == 1){
-                                    $selected = 'selected';
+                                $selected = false;
+                                if($i == $current_page){
+                                    $selected = true;
                                 }
-                                if($i < 4 || $i > $postResponce['totalPages'] - 2){
-                                    echo '<button type="button" data-page="'.$i.'" class="pagenation_button pagenation_page_button '.$selected.'"><span class="pagenation_button_text">'.$i.'</span></button>';
+
+                                if($i == $current_page){
+                                    bizpress_pagenation_button($i,$selected);
                                 }
-                                elseif($has_echo_elipics == false){
+                                else if($i == $current_page - 1 && $current_page -1 > 0){
+                                    bizpress_pagenation_button($i,$selected);
+                                }
+                                else if($i == $current_page - 2 && $current_page - 2 > 0){
+                                    bizpress_pagenation_button($i,$selected);
+                                }
+                                else if($i == $postResponce['totalPages']){
+                                    bizpress_pagenation_button($i,$selected);
+                                }
+                                else if($i == $postResponce['totalPages'] - 1){
+                                    bizpress_pagenation_button($i,$selected);
+                                }
+                                else if($i == $postResponce['totalPages'] - 2 && $has_echo_elipics == false){
                                     $has_echo_elipics = true;
                                     echo '<div class="pagenation_button pagenation_elipics_button"><span class="pagenation_button_text">...</span></div>';
-                                }                           
+                                }
+                                else if($current_page > $postResponce['totalPages'] - 2 && $i == $current_page - 3 && $has_echo_elipics == false){
+                                    $has_echo_elipics = true;
+                                    echo '<div class="pagenation_button pagenation_elipics_button"><span class="pagenation_button_text">...</span></div>';
+                                }                        
                                 $i++;
                             }
                         }
-                        
                         ?>
                     </div> 
                     <button type="button" <?php if($_GET['blogpage'] >= $postResponce['totalPages']): echo 'disabled'; endif; ?>  class="pagenation_button next_button"><span class="pagenation_button_text"><?php _e('Next','bizink-client'); ?></span></button>
@@ -268,3 +298,5 @@ function bizpress_blogs_page(){
     </div>
     <?php
 }
+
+include 'inc/automations.php';

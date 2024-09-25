@@ -67,7 +67,7 @@ function bizinkblogs_getPosts($args = ['status' => 'publish','per_page' => 8]){
     }
 
     $currentCount = get_transient('bizpress_blog_count');
-    if($currentCount === false){
+    if($currentCount == false){
         $currentCount = $limit;
         $start = new DateTime(date('Y-m-d'));
         $end = new DateTime(date('Y-m-t'));
@@ -199,7 +199,7 @@ function bizpress_blogs_addarticle_ajax(){
         }
     
         $currentCount = get_transient('bizpress_blog_count');
-        if($currentCount === false){
+        if($currentCount == false){
             $currentCount = $limit;
             $start = new DateTime(date('Y-m-d'));
             $end = new DateTime(date('Y-m-t'));
@@ -335,7 +335,7 @@ function bizpress_blogs_product_status(){
     }
 
     $currentCount = get_transient('bizpress_blog_count');
-    if($currentCount === false){
+    if($currentCount == false){
         $currentCount = $limit;
         $start = new DateTime(date('Y-m-d'));
         $end = new DateTime(date('Y-m-t'));
