@@ -43,26 +43,22 @@ function bizinkblogs_getPosts($args = ['status' => 'publish','per_page' => 8]){
     $product = get_option('bizpress_product',array(
         "bizpress" => true,
         "bizpress_basic" => true,
-        "bizpress_standard" => true,
-        "bizpress_premium" => false
+        "bizpress_standard" => false,
     ));
 
     $luca = false;
     if(function_exists('luca')){
         $luca = true;
     }
-    elseif(in_array('bizpress-luca-2/bizpress-luca-2.php', apply_filters('active_plugins', get_option('active_plugins')))){ 
+    else if(in_array('bizpress-luca-2/bizpress-luca-2.php', apply_filters('active_plugins', get_option('active_plugins')))){ 
         $luca = true;
     }
 
     $limit = 0;
     if($product->bizpress_standard == true){
-        $limit = 10;
-    }
-    elseif($product->bizpress_premium == true){
         $limit = 20;
     }
-    elseif($luca == true){
+    else if($luca == true){
         $limit = -1;
     }
 
@@ -175,26 +171,22 @@ function bizpress_blogs_addarticle_ajax(){
         $product = get_option('bizpress_product',array(
             "bizpress" => true,
             "bizpress_basic" => true,
-            "bizpress_standard" => true,
-            "bizpress_premium" => false
+            "bizpress_standard" => false,
         ));
     
         $luca = false;
         if(function_exists('luca')){
             $luca = true;
         }
-        elseif(in_array('bizpress-luca-2/bizpress-luca-2.php', apply_filters('active_plugins', get_option('active_plugins')))){ 
+        else if(in_array('bizpress-luca-2/bizpress-luca-2.php', apply_filters('active_plugins', get_option('active_plugins')))){ 
             $luca = true;
         }
     
         $limit = 0;
         if($product->bizpress_standard == true){
-            $limit = 10;
-        }
-        elseif($product->bizpress_premium == true){
             $limit = 20;
         }
-        elseif($luca == true){
+        else if($luca == true){
             $limit = -1;
         }
     
@@ -311,8 +303,7 @@ function bizpress_blogs_product_status(){
     $product = get_option('bizpress_product',array(
         "bizpress" => true,
         "bizpress_basic" => true,
-        "bizpress_standard" => true,
-        "bizpress_premium" => false
+        "bizpress_standard" => false,
     ));
 
     $luca = false;
@@ -325,12 +316,9 @@ function bizpress_blogs_product_status(){
 
     $limit = 0;
     if($product->bizpress_standard == true){
-        $limit = 10;
-    }
-    elseif($product->bizpress_premium == true){
         $limit = 20;
     }
-    elseif($luca == true){
+    else if($luca == true){
         $limit = -1;
     }
 

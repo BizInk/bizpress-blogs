@@ -11,7 +11,7 @@ function bizpress_blogs_automations_init(){
         'bizpress_blogs_automations_page'
     );
 }
-add_action('admin_menu', 'bizpress_blogs_automations_init');
+//add_action('admin_menu', 'bizpress_blogs_automations_init');
 
 function bizpress_blogs_automations_page(){
     if($_GET['automation'] == 'edit' || $_GET['automation'] == 'new'){
