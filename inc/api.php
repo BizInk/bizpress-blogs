@@ -42,8 +42,7 @@ function bizinkblogs_getPosts($args = ['status' => 'publish','per_page' => 8]){
 
     $product = get_option('bizpress_product',array(
         "bizpress" => true,
-        "bizpress_basic" => true,
-        "bizpress_standard" => false,
+        "bizpress_standard" => true,
     ));
 
     $luca = false;
@@ -54,7 +53,7 @@ function bizinkblogs_getPosts($args = ['status' => 'publish','per_page' => 8]){
         $luca = true;
     }
 
-    $limit = 0;
+    $limit = 20;
     if($product->bizpress_standard == true){
         $limit = 20;
     }
@@ -62,7 +61,7 @@ function bizinkblogs_getPosts($args = ['status' => 'publish','per_page' => 8]){
         $limit = -1;
     }
 
-    $currentCount = get_transient('bizpress_blog_count');
+    $currentCount = get_transient('bizpress_blog_count') ?? $limit;
     if($currentCount == false){
         $currentCount = $limit;
         $start = new DateTime(date('Y-m-d'));
@@ -71,13 +70,15 @@ function bizinkblogs_getPosts($args = ['status' => 'publish','per_page' => 8]){
         unset($start,$end);
     }
 
-    if($currentCount <= 0 && $limit != -1){
+    /*
+    if($currentCount < 0 && $limit != -1){
         return array(
             'status' => 'error',
             'type' => 'limit_reached',
             'message' => 'You have reached your blog post limit for this month.'
         );
     }
+    */
 
     $postUrl = add_query_arg($args,wp_slash($bizink_bace.'posts'));
     $response = wp_remote_get($postUrl,$bizinkcontent_client);
@@ -170,8 +171,7 @@ function bizpress_blogs_addarticle_ajax(){
 
         $product = get_option('bizpress_product',array(
             "bizpress" => true,
-            "bizpress_basic" => true,
-            "bizpress_standard" => false,
+            "bizpress_standard" => true,
         ));
     
         $luca = false;
@@ -182,7 +182,7 @@ function bizpress_blogs_addarticle_ajax(){
             $luca = true;
         }
     
-        $limit = 0;
+        $limit = 20;
         if($product->bizpress_standard == true){
             $limit = 20;
         }
@@ -190,7 +190,7 @@ function bizpress_blogs_addarticle_ajax(){
             $limit = -1;
         }
     
-        $currentCount = get_transient('bizpress_blog_count');
+        $currentCount = get_transient('bizpress_blog_count') ?? $limit;
         if($currentCount == false){
             $currentCount = $limit;
             $start = new DateTime(date('Y-m-d'));
@@ -198,7 +198,7 @@ function bizpress_blogs_addarticle_ajax(){
             set_transient( 'bizpress_blog_count', $limit, ($end->getTimestamp() - $start->getTimestamp()) );
             unset($start,$end);
         }
-
+        /*
         if($currentCount <= 0 && $limit != -1){
             wp_send_json(array(
                 'status' => 'error',
@@ -207,7 +207,7 @@ function bizpress_blogs_addarticle_ajax(){
             ),403);
             return;
         }
-
+        */
         $previousPosts = get_option('bizpress_previousPosts',[]);
         $args = array(
             '_fields' => 'id,title,content,sticky,excerpt,featured_media,featured_image,date,modified,slug,categories,region',
@@ -302,8 +302,7 @@ add_action( 'wp_ajax_bizpressblogsarticle', 'bizpress_blogs_addarticle_ajax' );
 function bizpress_blogs_product_status(){
     $product = get_option('bizpress_product',array(
         "bizpress" => true,
-        "bizpress_basic" => true,
-        "bizpress_standard" => false,
+        "bizpress_standard" => true,
     ));
 
     $luca = false;
@@ -314,7 +313,7 @@ function bizpress_blogs_product_status(){
 		$luca = true;
 	}
 
-    $limit = 0;
+    $limit = 20;
     if($product->bizpress_standard == true){
         $limit = 20;
     }
@@ -322,7 +321,7 @@ function bizpress_blogs_product_status(){
         $limit = -1;
     }
 
-    $currentCount = get_transient('bizpress_blog_count');
+    $currentCount = get_transient('bizpress_blog_count') ?? $limit;
     if($currentCount == false){
         $currentCount = $limit;
         $start = new DateTime(date('Y-m-d'));
@@ -331,8 +330,8 @@ function bizpress_blogs_product_status(){
         unset($start,$end);
     }
 
-    $canAddBlogs = false;
-    if($product->bizpress_standard == true || $product->bizpress_premium == true || $luca == true){
+    $canAddBlogs = true;
+    if($product->bizpress_standard == true || $luca == true){
         $canAddBlogs = true;
     }
 
