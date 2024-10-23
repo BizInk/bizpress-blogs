@@ -16,17 +16,31 @@ $bizinkcontent_client = array(
       'Authorization' => 'Bearer OSEgUIcnTnaLAPTjkbVtwrwZzMqkpywTIYzZMnpB'
     )
 );
-function bizinkblogs_getCategories(){
+function bizpress_blogs_getCategories($publisher = 'bizink'){
     global $bizink_bace,$bizinkcontent_client;
-    if(get_transient('bizpress_blog_categories')){
-        return get_transient('bizpress_blog_categories');
+    if(get_transient('bizpress_blog_categories_'.$publisher)){
+        return array(
+            'status' => 'success',
+            'type' => 'get_categories',
+            'categories' => get_transient('bizpress_blog_categories_'.$publisher)
+        );
     }
-    $response = wp_remote_get($bizink_bace.'categories',$bizinkcontent_client);
+    if($publisher != 'bizink'){
+        $url = 'publisher-topic';
+    }
+    else{
+        $url = 'categories';
+    }
+    $response = wp_remote_get($bizink_bace.$url.'?_fields=id,count,name,slug,parent',$bizinkcontent_client);
     $status = wp_remote_retrieve_response_code($response);
     if($status < 400){
         $body = json_decode(wp_remote_retrieve_body( $response ));
-        set_transient('bizpress_blog_categories', $body, DAY_IN_SECONDS);
-        return $body;
+        set_transient('bizpress_blog_categories_'.$publisher, $body, DAY_IN_SECONDS);
+        return array(
+            'status' => 'success',
+            'type' => 'get_categories',
+            'categories' => $body
+        );
     }
     else{
         return array(
@@ -37,50 +51,44 @@ function bizinkblogs_getCategories(){
     }
 }
 
-function bizinkblogs_getPosts($args = ['status' => 'publish','per_page' => 8]){
+function bizpress_blogs_getCategories_ajax(){
+    $publisher = $_POST['publisher'] ? filter_input(INPUT_POST,$_POST['publisher'],FILTER_SANITIZE_SPECIAL_CHARS) : 'bizink';
+    wp_send_json(bizpress_blogs_getCategories($publisher));
+}
+add_action( 'wp_ajax_bizpressblogscategories', 'bizpress_blogs_getCategories_ajax' );
+
+function bizpressblogs_getPublishers(){
     global $bizink_bace,$bizinkcontent_client;
-
-    $product = get_option('bizpress_product',array(
-        "bizpress" => true,
-        "bizpress_standard" => true,
-    ));
-
-    $luca = false;
-    if(function_exists('luca')){
-        $luca = true;
+    if(get_transient('bizpress_blog_publishers')){
+        return get_transient('bizpress_blog_publishers');
     }
-    else if(in_array('bizpress-luca-2/bizpress-luca-2.php', apply_filters('active_plugins', get_option('active_plugins')))){ 
-        $luca = true;
+    $response = wp_remote_get($bizink_bace.'publisher-publisher?_fields=name,id,acf,slug',$bizinkcontent_client);
+    $status = wp_remote_retrieve_response_code($response);
+    if($status < 400){
+        $body = json_decode(wp_remote_retrieve_body( $response ));
+        set_transient('bizpress_blog_publishers', $body, DAY_IN_SECONDS);
+        return $body;
     }
-
-    $limit = 20;
-    if($product->bizpress_standard == true){
-        $limit = 20;
-    }
-    else if($luca == true){
-        $limit = -1;
-    }
-
-    $currentCount = get_transient('bizpress_blog_count') ?? $limit;
-    if($currentCount == false){
-        $currentCount = $limit;
-        $start = new DateTime(date('Y-m-d'));
-        $end = new DateTime(date('Y-m-t'));
-        set_transient( 'bizpress_blog_count', $limit, ($end->getTimestamp() - $start->getTimestamp()) );
-        unset($start,$end);
-    }
-
-    /*
-    if($currentCount < 0 && $limit != -1){
+    else{
         return array(
             'status' => 'error',
-            'type' => 'limit_reached',
-            'message' => 'You have reached your blog post limit for this month.'
+            'type' => 'fetch_error_publishers',
+            'message' => 'There was an error fetching the publishers.'
         );
     }
-    */
+}
 
-    $postUrl = add_query_arg($args,wp_slash($bizink_bace.'posts'));
+function bizinkblogs_getPosts($args = ['status' => 'publish','per_page' => 8],$publisher = 'bizink'){
+    global $bizink_bace,$bizinkcontent_client;
+   
+    if($publisher != 'bizink'){
+        $args['filter[publisher-publisher]'] = $publisher;
+        $postUrl = add_query_arg($args,wp_slash($bizink_bace.'publisher-content'));
+    }
+    else{
+        $postUrl = add_query_arg($args,wp_slash($bizink_bace.'posts'));
+    }
+    
     $response = wp_remote_get($postUrl,$bizinkcontent_client);
     $status = wp_remote_retrieve_response_code($response);
     if($status < 400){
@@ -89,14 +97,12 @@ function bizinkblogs_getPosts($args = ['status' => 'publish','per_page' => 8]){
         $totalPages = wp_remote_retrieve_header($response,'X-WP-TotalPages');
         return array(
             'status' => 'success',
-            'type' => 'get_post',
+            'type' => 'get_posts',
             'message' => 'Success here are the blog post you requested',
             'totalPosts' => $totalPosts,
             'totalPages' => $totalPages,
             'posts' => $body,
             'url' => $postUrl,
-            'currentCount' => $currentCount,
-            'limit' => $limit
         );
     }
     else{
@@ -130,8 +136,27 @@ function bizpress_blogs_get_regons(){
     }
 }
 
+function bizinkblogs_getSinglePost($id){
+    global $bizink_bace,$bizinkcontent_client;
+    $postUrl = add_query_arg(array( '_fields' => 'id,title,content,sticky,excerpt,featured_media,featured_image,date,modified,slug,categories,region' ),wp_slash($bizink_bace.'publisher-content/'.$id));
+    $response = wp_remote_get($postUrl,$bizinkcontent_client);
+    $status = wp_remote_retrieve_response_code($response);
+    if($status < 400){
+        $body = json_decode(wp_remote_retrieve_body( $response ));
+        return $body;
+    }
+    else{
+        return array(
+            'status' => 'error',
+            'type' => 'fetch_error_post',
+            'message' => 'There was an error fetching the post data.'
+        );
+    }
+}
+
 function bizpress_blogs_ajax(){
     $page = isset($_REQUEST['blogpage']) ? $_REQUEST['blogpage'] : 1;
+    $publisher = $_POST['publisher'] ? filter_input(INPUT_POST,$_POST['publisher'],FILTER_SANITIZE_SPECIAL_CHARS) : 'bizink';
     $args = array(
         'status' => 'publish',
         'per_page' => 8,
@@ -160,65 +185,32 @@ function bizpress_blogs_ajax(){
     if(!empty($category) && $category != 'all' && $category != 'other') $args = array_merge(array('categories' => $category),$args);
     if(!empty($myRegionID) && $myRegionID != 0) $args = array_merge(array('region' => $myRegionID),$args);
 
-    wp_send_json(bizinkblogs_getPosts($args));
+    wp_send_json(bizinkblogs_getPosts($args,$publisher));
 }
 add_action( 'wp_ajax_bizpressblogs', 'bizpress_blogs_ajax' );
 
 function bizpress_blogs_addarticle_ajax(){
     global $bizink_bace,$bizinkcontent_client;
-    $bizpressPostID = $_POST['bizpressPostID'] ? $_POST['bizpressPostID'] : false;
+    $bizpressPostID = $_POST['bizpressPostID'] ? filter_input(INPUT_POST,'bizpressPostID',FILTER_SANITIZE_NUMBER_INT) : false;
+    $publisher = $_POST['publisher'] ? filter_input(INPUT_POST,$_POST['publisher'],FILTER_SANITIZE_SPECIAL_CHARS) : 'bizink';
+
     if($bizpressPostID){
 
-        $product = get_option('bizpress_product',array(
-            "bizpress" => true,
-            "bizpress_standard" => true,
-        ));
-    
-        $luca = false;
-        if(function_exists('luca')){
-            $luca = true;
-        }
-        else if(in_array('bizpress-luca-2/bizpress-luca-2.php', apply_filters('active_plugins', get_option('active_plugins')))){ 
-            $luca = true;
-        }
-    
-        $limit = 20;
-        if($product->bizpress_standard == true){
-            $limit = 20;
-        }
-        else if($luca == true){
-            $limit = -1;
-        }
-    
-        $currentCount = get_transient('bizpress_blog_count') ?? $limit;
-        if($currentCount == false){
-            $currentCount = $limit;
-            $start = new DateTime(date('Y-m-d'));
-            $end = new DateTime(date('Y-m-t'));
-            set_transient( 'bizpress_blog_count', $limit, ($end->getTimestamp() - $start->getTimestamp()) );
-            unset($start,$end);
-        }
-        /*
-        if($currentCount <= 0 && $limit != -1){
-            wp_send_json(array(
-                'status' => 'error',
-                'type' => 'limit_reached',
-                'message' => 'You have reached your blog post limit for this month.'
-            ),403);
-            return;
-        }
-        */
-        $previousPosts = get_option('bizpress_previousPosts',[]);
         $args = array(
-            '_fields' => 'id,title,content,sticky,excerpt,featured_media,featured_image,date,modified,slug,categories,region',
+            '_fields' => 'id,title,content,excerpt,featured_media,featured_image,date,modified,slug,categories,region',
         );
-        $postUrl = add_query_arg($args,wp_slash($bizink_bace.'posts/'.$_POST['bizpressPostID']));
+        if($publisher != 'bizink'){
+            $postUrl = add_query_arg($args,wp_slash($bizink_bace.'publisher-content/'.$bizpressPostID));
+        }
+        else{
+            $postUrl = add_query_arg($args,wp_slash($bizink_bace.'posts/'.$bizpressPostID));
+        }
+        
         $response = wp_remote_get($postUrl ,$bizinkcontent_client);
         $status = wp_remote_retrieve_response_code($response);
         if($status < 400){
             $body = json_decode(wp_remote_retrieve_body( $response ));
             // Process and add blog post
-
             if(empty($body->title->rendered) || empty($body->content->rendered)){
                 wp_send_json(array(
                     'status' => 'error',
@@ -227,9 +219,13 @@ function bizpress_blogs_addarticle_ajax(){
                 ));
             }
             else{
+                $content = $body->content->rendered;
+                if($publisher != 'bizink'){
+                    $content = '[bizpress_blog id="'.$body->id.'"]';
+                }
                 $post = wp_insert_post(array(
                     'post_title' => $body->title->rendered,
-                    'post_content' => $body->content->rendered,
+                    'post_content' => $content,
                     'post_author'  => get_current_user_id(),
                     'meta_input' => array(
                         'bizpress_id' => $body->id,
@@ -241,33 +237,30 @@ function bizpress_blogs_addarticle_ajax(){
                 // categories
                 if(!empty($body->categories)){
                     $categories = array();
-                    $currentCategories = bizinkblogs_getCategories();
-                    foreach($currentCategories as $currentCategory){
-                        if(in_array($currentCategory->id,$body->categories)){
-                            array_push($categories,$currentCategory->name);
+                    $currentCategories = bizpress_blogs_getCategories();
+                    if(!empty($currentCategories) && $currentCategories['status'] == 'success'){
+                        foreach($currentCategories['categories'] as $currentCategory){
+                            if(in_array($currentCategory->id,$body->categories)){
+                                array_push($categories,$currentCategory->name);
+                            }
                         }
+                        wp_create_categories($categories,$post);
                     }
-                    wp_create_categories($categories,$post);
+                    
                 }
     
                 if(!is_wp_error($post)){
-                    //the post is valid
-                    array_push($previousPosts,intval($_POST['bizpressPostID']));
+                    $previousPosts = get_option('bizpress_previousPosts',[]);
+                    array_push($previousPosts, $bizpressPostID);
                     update_option('bizpress_previousPosts',$previousPosts);
-
-                    if($limit != -1){
-                        $start = new DateTime(date('Y-m-d'));
-                        $end = new DateTime(date('Y-m-t'));
-                        set_transient( 'bizpress_blog_count', --$currentCount, ($end->getTimestamp() - $start->getTimestamp()) );
-                    }
                     
                     wp_send_json(array(
                         'status' => 'success',
                         'type' => 'add_post',
-                        'message' => 'Success the post has been added to you blog',
+                        'message' => __('Success the post has been added to you blog','bizink-client'),
                         'post_id' => $post,
                         'post' => get_post($post),
-                        'currentCount' => $currentCount
+                        'currentCount' => 30
                     ),200);
                 }
                 else{
@@ -285,7 +278,7 @@ function bizpress_blogs_addarticle_ajax(){
             wp_send_json(array(
                 'status' => 'error',
                 'type' => 'fetch_error_post',
-                'message' => 'There was an error fetching the post data.'
+                'message' => __('There was an error fetching the post data.','bizink-client')
             ),404);
         }
     }
@@ -293,12 +286,13 @@ function bizpress_blogs_addarticle_ajax(){
         wp_send_json(array(
             'status' => 'error',
             'type' => 'no_post_id',
-            'message' => 'Do data receved to the post you wished to add.'
+            'message' => __('Do data receved to the post you wished to add.','bizink-client')
         ),400);
     }
 }
 add_action( 'wp_ajax_bizpressblogsarticle', 'bizpress_blogs_addarticle_ajax' );
 
+// TODO: MAKE This function work
 function bizpress_blogs_product_status(){
     $product = get_option('bizpress_product',array(
         "bizpress" => true,

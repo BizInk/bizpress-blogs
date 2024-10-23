@@ -9,16 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 include 'inc/api.php';
 include 'inc/cpt.php';
 
-function bizpress_pagenation_button($page,$selected){
-    if($selected == 'selected'){
-        $selected_text = 'selected';
-    }
-    else{
-        $selected_text = '';
-    }
-    echo '<button type="button" data-page="'.$page.'" class="pagenation_button pagenation_page_button '.$selected_text.'"><span class="pagenation_button_text">'.$page.'</span></button>';
-}
-
 function bizpress_blogs_plugin_styles($hook) {
 	wp_register_style( 'bizpress_blogs_css', plugins_url( 'assets/css/admin.css', __FILE__ ) );
 	wp_enqueue_style( 'bizpress_blogs_css' );
@@ -72,15 +62,23 @@ function bizpress_blogs_page(){
         }
     }
     $categories = false;
-    $categories = bizinkblogs_getCategories();
+    
     $search = isset($_REQUEST['search']) ? $_REQUEST['search'] : false;
     $category = isset($_REQUEST['category']) ? $_REQUEST['category'] : false;
+
+    $publishers = bizpressblogs_getPublishers();
+    $publisher = isset($_REQUEST['publisher']) ? $_REQUEST['publisher'] : 'bizink';
+
+    $categoriesData = bizpress_blogs_getCategories($publisher);
+    if(!empty($categoriesData) && $categoriesData['status'] == 'success'){
+        $categories = $categoriesData['categories'];
+    }
 
     if(!empty($search)) $args = array_merge(array('search' => $search),$args);
     if(!empty($category) && $category != 'all' && $category != 'other') $args = array_merge(array('categories' => $category),$args);
     if(!empty($myRegionID) && $myRegionID != 0) $args = array_merge(array('region' => $myRegionID),$args);
 
-    $postResponce = bizinkblogs_getPosts($args);
+    $postResponce = bizinkblogs_getPosts($args,$publisher);
     $nonce = wp_create_nonce("bizpress_blogs");
     ?>
     <div class="bizpress_blogs" data-nonce="<?php echo $nonce; ?>">
@@ -92,11 +90,25 @@ function bizpress_blogs_page(){
                 <input type="hidden" name="page" value="bizpress_blogs" />
                 <label for="bizpress_blogs_search_form_search" class="bizpress_blogs_search_form_search_label"><?php _e('Search','bizink-client'); ?></label>
                 <div class="bizpress_blogs_search_form_input_category_wrap">
+                    <select id="bizpress_blogs_publisher" name="publisher" class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_publisher" aria-label="Select Publisher">
+                        <option value="bizink"><?php _e('Bizink','bizink-client'); ?></option>
+                        <?php 
+                            if(empty($publishers) == false){
+                                foreach($publishers as $pub){
+                                    if($pub->slug == $publisher) $selected = 'selected';
+                                    else $selected = '';
+                                    echo '<option value="'.$pub->slug.'" '.$selected.'>'.__($pub->name,'bizink-client').'</option>';
+                                }
+                            }
+                        ?>
+                    </select>
+                </div>
+                <div class="bizpress_blogs_search_form_input_category_wrap">
                     <select id="bizpress_blogs_category" name="category" class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_category" aria-label="Select Category">
                         <option value="all"><?php _e('All Posts','bizink-client');?></option>
                         <?php
                             if(empty($categories) == false){
-                                foreach(bizinkblogs_getCategories() as $category){
+                                foreach($categories as $category){
                                     if($category->slug != 'uncategorized'): //uncategorized
                                         if($category->id == $_REQUEST['category']) $selected = 'selected';
                                         else $selected = '';
@@ -104,10 +116,13 @@ function bizpress_blogs_page(){
                                     endif;
                                 }
                             }
+                            else{
+                                echo '<option value="other">'.__('Other','bizink-client').'</option>';
+                            }
                         ?>
                     </select>
                 </div>
-                <input class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_search" id="bizpress_blogs_search_form_search" type="search" placeholder="<?php _e('Search for blog topics','bizink-client');?>" name="search" <?php if(!empty($_GET['search'])){echo 'value="'.$_GET['search'].'"';} ?>/>
+                <input class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_search" id="bizpress_blogs_search_form_search" type="search" placeholder="<?php _e('Search for blogs','bizink-client');?>" name="search" <?php if(!empty($_GET['search'])){echo 'value="'.$_GET['search'].'"';} ?>/>
                 <input class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_submit" id="bizpress_blogs_search_form_submit" type="submit" value="<?php _e('Search','bizink-client');?>"/>
             </form>
             <div class="photocredit">
@@ -131,122 +146,19 @@ function bizpress_blogs_page(){
             <div class="bizpress_blogs_pagenation">
                 <div class="pagenation">
                     <button type="button" <?php if(($_GET['blogpage'] ?? 1) <= 1): echo 'disabled'; endif; ?> class="pagenation_button prev_button"><span class="pagenation_button_text"><?php _e('Previous','bizink-client'); ?></span></button>
-                    <div class="pagenation_pages">
-                        <?php
-                        $current_page = intval($_GET['blogpage'] ?? 1);
-                        if($postResponce['totalPages'] < 10){
-                            $i = 1;
-                            while($i <= $postResponce['totalPages']){
-                                $selected = false;
-                                if($i == $current_page){
-                                    $selected = true;
-                                }
-                                bizpress_pagenation_button($i,$selected);
-                                $i++;
-                            }
-                        }
-                        else{
-                            
-                            $has_echo_elipics = false;
-                            $i = 1;
-
-                            while($i <= $postResponce['totalPages']){
-                                $selected = false;
-                                if($i == $current_page){
-                                    $selected = true;
-                                }
-
-                                if($i == $current_page){
-                                    bizpress_pagenation_button($i,$selected);
-                                }
-                                else if($i == $current_page - 1 && $current_page -1 > 0){
-                                    bizpress_pagenation_button($i,$selected);
-                                }
-                                else if($i == $current_page - 2 && $current_page - 2 > 0){
-                                    bizpress_pagenation_button($i,$selected);
-                                }
-                                else if($i == $postResponce['totalPages']){
-                                    bizpress_pagenation_button($i,$selected);
-                                }
-                                else if($i == $postResponce['totalPages'] - 1){
-                                    bizpress_pagenation_button($i,$selected);
-                                }
-                                else if($i == $postResponce['totalPages'] - 2 && $has_echo_elipics == false){
-                                    $has_echo_elipics = true;
-                                    echo '<div class="pagenation_button pagenation_elipics_button"><span class="pagenation_button_text">...</span></div>';
-                                }
-                                else if($current_page > $postResponce['totalPages'] - 2 && $i == $current_page - 3 && $has_echo_elipics == false){
-                                    $has_echo_elipics = true;
-                                    echo '<div class="pagenation_button pagenation_elipics_button"><span class="pagenation_button_text">...</span></div>';
-                                }                        
-                                $i++;
-                            }
-                        }
-                        ?>
-                    </div> 
+                    <div class="pagenation_pages"></div> 
                     <button type="button" <?php if($_GET['blogpage'] >= $postResponce['totalPages']): echo 'disabled'; endif; ?>  class="pagenation_button next_button"><span class="pagenation_button_text"><?php _e('Next','bizink-client'); ?></span></button>
                 </div>
             </div>
             <?php endif; ?>
             <div id="main_loader_section" class="loader_section">
+                <h2><?php _e('Loading...','bizink-client'); ?></h2>
                 <div id="bizink_blogs_loader" class="bizink_blogs_loader"><div></div><div></div><div></div></div>
             </div>
-                <?php
-                if(empty($postResponce['posts']) == false):
-                    echo '<div id="bizpress_blog_items" class="bizpress_blog_items">';
-                    foreach($postResponce['posts'] as $post):
-                ?>
-                    <div class="blog <?php if(in_array($post->id,$prevPosts)){echo 'post_in_library';} ?>" id="bizpress_blog_<?php echo $post->id; ?>" data-slug="<?php echo $post->slug; ?>" data-id="<?php echo $post->id; ?>" data-title="<?php echo $post->title->rendered; ?>">
-                        <div class="in_library_text"><?php _e('In Library','bizink-client'); ?></div>
-                        <div class="blog_text">
-                            <h3 class="blog_title"><?php echo $post->title->rendered; ?></h3>
-                            <div class="blog_excerpt" onmousedown="return false" onselectstart="return false">
-                                <?php echo $post->excerpt->rendered; ?>
-                            </div>
-                        </div>
-                        <div class="actions">
-                            <button type="button" class="bizpress_blogs_button view_article"><?php _e('View Post','bizink-client'); ?></button>
-                            <button type="button" class="bizpress_blogs_button bizpress_blogs_button_secondary import_article" data-id="<?php echo $post->id; ?>" data-title="<?php echo $post->title->rendered; ?>"><?php _e('Import Post','bizink-client'); ?></button>
-                        </div>
-                        <div class="content" style="display: none;" onmousedown="return false" onselectstart="return false">
-                            <?php echo $post->content->rendered; ?>
-                        </div>
-                    </div>
-                <?php 
-                    endforeach;
-                    echo '</div>';
-                else:
-                    ?>
-                    <div class="no_posts">
-                        <p><?php 
-                        if(empty($_REQUEST['category']) || $_REQUEST['category'] == 'all'){
-                            // No Category
-                            if(empty($_REQUEST['search'])){ // No Category No Search
-                                _e('Sorry no posts were found','bizink-client');
-                            }
-                            else{ // No Category With Search
-                                echo sprintf(__('Sorry no posts were found for the search term <b>\'%s\'</b>','bizink-client'),$_REQUEST['search']);
-                            }
-                        }
-                        else{
-                            // With Category
-                            if(empty($_REQUEST['search'])){ // With Category No Search
-                                _e('Sorry no posts were found in this category','bizink-client');
-
-                            }
-                            else{ // With Category With Search
-                                foreach(bizinkblogs_getCategories() as $category){
-                                    if($category->id == $_REQUEST['category']){
-                                        echo sprintf(__('Sorry no posts were found for the search term <b>\'%s\'</b> in the category <b>\'%s\'</b>','bizink-client'),$_REQUEST['search'],$category->name);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        ?></p>
-                    <?php
-                endif;
-                ?>
+                <div id="bizpress_blog_items" class="bizpress_blog_items"></div>
+                <div class="no_posts" style="display:none;">
+                    <h2><?php _e('Sorry no posts were found','bizink-client'); ?></h2>
+                </div>
             </div>
             <div class="bizpress_blogs_model" id="bizpress_blogs_model">
                 <div class="model">
@@ -270,7 +182,11 @@ function bizpress_blogs_page(){
                             <p class="article_status"><?php _e('Processing...','bizink-client'); ?></p>
                         </div>
                         <div class="loader_section">
-                            <div id="bizink_blogs_loader" class="bizink_blogs_loader"><div></div><div></div><div></div></div>
+                            <div id="bizink_blogs_loader" class="bizink_blogs_loader">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
                         </div>
                     </div>
                     <div class="model_actions">
@@ -287,4 +203,5 @@ function bizpress_blogs_page(){
     <?php
 }
 
+include 'inc/shortcode.php';
 include 'inc/automations.php';

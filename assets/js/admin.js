@@ -33,13 +33,18 @@ function eventBindings(){
             $('#bizpress_blogs_addpost_model .article_title').text(importedArticle.data('title'));
             $("#bizpress_blogs_addpost_model").addClass('show');
             $('#bizpress_blogs_addpost_model .model_close').hide();
+            let publisher = $('#bizpress_blogs_publisher').val();
+            if(publisher == null || publisher == ''){
+                publisher = 'bizink';
+            }
             $.ajax({
                 type: "post",
                 dataType: "json",
                 url: bizpress_blogs_ajax_object.ajaxurl,
                 data: {
                     bizpressPostID: $(this).data('id'),
-                    action: 'bizpressblogsarticle'
+                    action: 'bizpressblogsarticle',
+                    publisher: publisher
                 },
                 success: function(response){                    
                     $('.article_status').text(response.message);
@@ -108,45 +113,128 @@ jQuery(document).ready(function($){
             $('.bizpress_blogs .bizpress_blogs_header .photocredit a').attr('href','https://unsplash.com/@freedomstudios?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText');
             break;
     }
-
     eventBindings();
+    bizpress_getBlogs();
 
-    $("#bizink_blogs_loader").hide();
-    $('#main_loader_section').hide();
+    function bizpress_reload_categories(){
+        $('#bizpress_blogs_category').prop( "disabled", true );
+        let publisher = $('#bizpress_blogs_publisher').val();
+        if(publisher == null || publisher == ''){
+            publisher = 'bizink';
+        }
+        $.ajax({
+            type: "post",
+            dataType: "json",
+            url: bizpress_blogs_ajax_object.ajaxurl,
+            data: {
+                action: 'bizpressblogscategories',
+                ...(publisher && {publisher:publisher})
+            },
+            success: function(response){
+                if(response.status == 'success'){
+                    $('#bizpress_blogs_category').html('');
+                    $('#bizpress_blogs_category').append('<option value="all">'+__('All Posts','bizink-client')+'</option>');
+                    response.categories.forEach(category => {
+                        $('#bizpress_blogs_category').append('<option value="'+category.id+'">'+category.name+'</option>');
+                    });
+                    $('#bizpress_blogs_category').prop( "disabled", false );
+                }
+                else{
+                    console.log(response);
+                }
+            },
+            error: function(response){
+                console.log(response);
+            }
+        });
+    }
 
-    function getBlogs(){
+    function bizpress_pagenation_button(page,selected){
+        let selected_text = '';
+        if(selected){
+            selected_text = 'selected';
+        }
+        $('.pagenation_pages').append('<button type="button" data-page="'+page+'" class="pagenation_button pagenation_page_button '+selected_text+'">'+page+'</button>');
+    }
+
+    function bizpress_pagenation_section(){
+        $('.pagenation_page_button').each(function(){
+            $(this).remove();
+        });
+
+        let totalPages = parseInt($('.bizpress_blogs_posts').data('totalpages'));
+        let current_page = parseInt($('.bizpress_blogs_posts').data('page'));
+        
+        $('.prev_button').prop('disabled', false);
+        $('.next_button').prop('disabled', false);
+        if(current_page == 1){
+            $('.prev_button').prop('disabled', true);
+        }
+        if(current_page == totalPages){
+            $('.next_button').prop('disabled', true);
+        }
+
+        if(totalPages < 2){
+            $('.pagenation').hide();
+        }
+        else if(totalPages < 10){
+            $('.pagenation').show();
+            $('.pagenation_pages').html('');
+            let i = 1;
+            while(i < totalPages){
+                let selected = false;
+                if(i == current_page){ 
+                    selected = true;
+                }
+                bizpress_pagenation_button(i,selected);
+                i++;
+            }
+        }
+        else{
+            $('.pagenation').show();
+            $('.pagenation_pages').html('');
+            let has_echo_elipics = false;
+            let i = 1;
+            while(i < totalPages){
+                let selected = false;
+                if(i == current_page){ 
+                    selected = true;
+                }
+
+                if(i == current_page || i == current_page - 1 || i == current_page + 1 || i == totalPages || i == totalPages - 1 || i == 1){
+                    bizpress_pagenation_button(i,selected);
+                }
+                else if(current_page < totalPages - 3 && has_echo_elipics == false){
+                    has_echo_elipics = true;
+                    $('.pagenation_pages').append('<div type="button" class="pagenation_button pagenation_elipics_button"><span class="pagenation_button_text">...</span></div>');
+                }
+                i++;
+            }
+        }
+        $('.pagenation_page_button').click(function(){
+            if(setPage($(this).data('page'))){
+                bizpress_getBlogs();
+            }
+        });
+    }
+
+    function bizpress_getBlogs(){
+        $("#bizink_blogs_loader").show();
+        $('#main_loader_section').show();
+        $('.pagenation').hide();
+
         let category = $('#bizpress_blogs_category').val();
         let search = $('#bizpress_blogs_search').val();
         let page = $('.bizpress_blogs_posts').data('page');
-        let totalpages = $('.bizpress_blogs_posts').data('totalpages');
-        $('.pagenation_page_button').each(function(){
-            $(this).removeClass('selected');
-            if($(this).data('page') == page){
-                $(this).addClass('selected');
-            }
-
-        });
-        $('.prev_button').prop('disabled', false);
-        $('.next_button').prop('disabled', false);
-        if(page == 1){
-            $('.prev_button').prop('disabled', true);
-        }
-        if(page == totalpages){
-            $('.next_button').prop('disabled', true);
+        let publisher = $('#bizpress_blogs_publisher').val();
+        if(publisher == null || publisher == ''){
+            publisher = 'bizink';
         }
 
         $('#main_loader_section').height($('.bizpress_blogs_posts .bizpress_blog_items').height())
         $('#main_loader_section').show();
         $("#bizink_blogs_loader").show();
         $('.bizpress_blogs_posts .bizpress_blog_items').hide();
-
-        function bizpress_pagenation_button(page,selected){
-            let selected_text = '';
-            if(selected){
-                selected_text = 'selected';
-            }
-            $('.pagenation_pages').append('<button type="button" data-page="'+page+'" class="pagenation_button pagenation_page_button '+selected_text+'">'+page+'</button>');
-        }
 
         $.ajax({
             type: "post",
@@ -156,66 +244,28 @@ jQuery(document).ready(function($){
                 action: 'bizpressblogs',
                 ...(category && {category}),
                 ...(search && {search}),
-                ...(page > 1 && {blogpage:page})
+                ...(page > 1 && {blogpage:page}),
+                ...(publisher && {publisher:publisher})
             },
             success: function(response){
                 $("#bizink_blogs_loader").hide();
                 $('#main_loader_section').hide();
                 $('.bizpress_blogs_posts .bizpress_blog_items').show();
                 if(response.status == 'success'){
-                    // Paganation
-                    $('.pagenation_page_button').each(function(){
-                        $(this).remove();
-                    });
                     let totalPages = parseInt(response.totalPages);
                     $('.bizpress_blogs_posts').data('totalpages',totalPages);
                     let current_page = parseInt(page);
-                    if(totalPages < 10){
-                        let i = 1;
-                        while(i < totalPages){
-                            let selected = false;
-                            if(i == current_page){ 
-                                selected = true;
-                            }
-                            bizpress_pagenation_button(i,selected);
-                            i++;
-                        }
+                    $('.bizpress_blogs_posts').data('page',current_page);
+
+                    // Success but No Posts
+                    if(response.posts == null || response.posts.length < 1){
+                        $('.pagenation').hide();
+                        $('.no_posts').show();
+                        $('.bizpress_blogs_posts .bizpress_blog_items').hide();
+                        return;
                     }
-                    else{
-                        let has_echo_elipics = false;
-                        let i = 1;
-                        while(i < totalPages){
-                            let selected = false;
-                            if(i == current_page){ 
-                                selected = true;
-                            }
-                            
-                            if(i == current_page){
-                                bizpress_pagenation_button(i,selected);
-                            }
-                            else if(i == current_page - 1 && current_page -1 > 0){
-                                bizpress_pagenation_button(i,selected);
-                            }
-                            else if(i == current_page - 2 && current_page - 2 > 0){
-                                bizpress_pagenation_button(i,selected);
-                            }
-                            else if(i == totalPages){
-                                bizpress_pagenation_button(i,selected);
-                            }
-                            else if(i == totalPages - 1){
-                                bizpress_pagenation_button(i,selected);
-                            }
-                            else if(i == totalPages - 2 && has_echo_elipics == false){
-                                has_echo_elipics = true;
-                                $('.pagenation_pages').append('<div type="button" class="pagenation_button pagenation_elipics_button"><span class="pagenation_button_text">...</span></div>');
-                            }
-                            else if(current_page > totalPages - 2 && i == current_page - 3 && has_echo_elipics == false){
-                                has_echo_elipics = true;
-                                $('.pagenation_pages').append('<div type="button" class="pagenation_button pagenation_elipics_button"><span class="pagenation_button_text">...</span></div>');
-                            }
-                            i++;
-                        }
-                    }
+
+                    bizpress_pagenation_section();
 
                     // Blogs
                     $('.blog').each(function(){
@@ -228,7 +278,7 @@ jQuery(document).ready(function($){
                         '<div class="blog '+inLibary+'" id="bizpress_blog_'+post.id+'" data-slug="'+post.slug+'" data-id="'+post.id+'" data-title="'+post.title.rendered+'"><div class="in_library_text">'+__('In Library','bizink-client')+'</div><div class="blog_text"><h3 class="blog_title">'+post.title.rendered+'</h3><div class="blog_excerpt" onmousedown="return false" onselectstart="return false">'+post.excerpt.rendered+'</div></div><div class="actions"><button type="button" class="bizpress_blogs_button view_article">'+__('View Article','bizink-client')+'</button><button type="button" class="bizpress_blogs_button bizpress_blogs_button_secondary import_article" data-id="'+post.id+'" data-title="'+post.title.rendered+'">'+__('Import Article','bizink-client')+'</button></div><div class="content" style="display: none;" onmousedown="return false" onselectstart="return false">'+post.content.rendered+'</div>');
                     });
                     eventBindings();
-                    if(category != null && category != '' || search != null || search != "" || page > 1){
+                    if(category != null && category != '' || search != null || search != "" || page > 1 || publisher != 'bizink'){
                         if (history.pushState) {
                             let newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?page=bizpress_blogs';
                             if(page > 1){
@@ -239,6 +289,9 @@ jQuery(document).ready(function($){
                             }
                             if(search != null && search != "" && search != undefined){
                                 newurl = newurl + '&search='+search;
+                            }
+                            if(publisher != 'bizink'){
+                                newurl = newurl + '&publisher='+publisher;
                             }
                             window.history.pushState({path:newurl},'',newurl);
                         }
@@ -290,19 +343,20 @@ jQuery(document).ready(function($){
     }
 
     $('#bizpress_blogs_search_form_submit').click(function(){
-        getBlogs();
+        bizpress_getBlogs();
     });
     $('#bizpress_blogs_category').on('change',function(){
-        getBlogs();
+        bizpress_getBlogs();
     });
-    $('.pagenation_page_button').click(function(){
-        if(setPage($(this).data('page'))){
-            getBlogs();
-        }
+    $('#bizpress_blogs_publisher').on('change',function(){
+        $('.bizpress_blogs_posts').data('page',1);
+        bizpress_reload_categories();
+        bizpress_getBlogs();
     });
+    
     $('.prev_button').click(function(){
         if(setPage(($('.bizpress_blogs_posts').data('page') - 1))){
-            getBlogs();
+            bizpress_getBlogs();
         }
         else{
             $('.prev_button').prop('disabled', true);
@@ -310,7 +364,7 @@ jQuery(document).ready(function($){
     });
     $('.next_button').click(function(){
         if(setPage(($('.bizpress_blogs_posts').data('page') + 1))){
-            getBlogs();
+            bizpress_getBlogs();
         }
         else{
             $('.next_button').prop('disabled', true);

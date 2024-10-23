@@ -113,7 +113,8 @@
     margin:0;
     font-family: 'Quicksand', sans-serif;
 }
-.bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input_category{
+.bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input_category,
+.bizpress_blogs .bizpress_blogs_search_form .bizpress_blogs_search_form_input_publisher{
     width:100%;
     height:100%;
     position: relative;
@@ -402,7 +403,9 @@
 
 .loader_section{
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
 }
 .bizink_blogs_loader {
     display: inline-block;
