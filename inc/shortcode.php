@@ -9,8 +9,9 @@ function bizpress_blog_shortcode( $atts ) {
     }
     else{
         $post = bizinkblogs_getSinglePost($atts['id']);
-        $content = isset($post->content->rendered) ? $post->content->rendered : '';
-        return '<div class="bizpress-blog" oncopy="return false" oncut="return false" onpaste="return false">'.$content.'</div>';
+        $content = isset($post['post']->content->rendered) ? $post['post']->content->rendered : '';
+        $publisherName = isset($post['publisher']) ? sprintf(__('This article was writen by: %s','bizink-client'),$post['publisher']->name) : '';
+        return '<div class="bizpress-publisher">'.$publisherName.'</div><br/><div class="bizpress-blog" oncopy="return false" oncut="return false" onpaste="return false">'.$content.'</div>';
     }
 
 }

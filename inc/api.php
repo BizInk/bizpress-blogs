@@ -138,12 +138,28 @@ function bizpress_blogs_get_regons(){
 
 function bizinkblogs_getSinglePost($id){
     global $bizink_bace,$bizinkcontent_client;
-    $postUrl = add_query_arg(array( '_fields' => 'id,title,content,sticky,excerpt,featured_media,featured_image,date,modified,slug,categories,region' ),wp_slash($bizink_bace.'publisher-content/'.$id));
+
+    $publishers = bizpressblogs_getPublishers();
+
+    $postUrl = add_query_arg(array( '_fields' => 'id,title,content,sticky,excerpt,featured_media,featured_image,date,modified,slug,categories,region,publisher-publisher,publisher-topic,publisher-type' ),wp_slash($bizink_bace.'publisher-content/'.$id));
     $response = wp_remote_get($postUrl,$bizinkcontent_client);
     $status = wp_remote_retrieve_response_code($response);
     if($status < 400){
         $body = json_decode(wp_remote_retrieve_body( $response ));
-        return $body;
+        $publisher = false;
+        if(!empty($body->{'publisher-publisher'}[0])){
+            foreach($publishers as $pub){
+                if($pub->id == $body->{'publisher-publisher'}[0]){
+                    $publisher = $pub;
+                }
+            }
+        }
+        return array(
+            'status' => 'success',
+            'type' => 'get_post',
+            'post' => $body,
+            'publisher' => $publisher
+        );
     }
     else{
         return array(
