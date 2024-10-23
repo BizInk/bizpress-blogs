@@ -10,7 +10,7 @@ function bizpress_blog_shortcode( $atts ) {
     else{
         $post = bizinkblogs_getSinglePost($atts['id']);
         $content = isset($post->content->rendered) ? $post->content->rendered : '';
-        return '<div class="bizpress-blog">'.$content.'</div>';
+        return '<div class="bizpress-blog" oncopy="return false" oncut="return false" onpaste="return false">'.$content.'</div>';
     }
 
 }
