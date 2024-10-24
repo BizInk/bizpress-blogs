@@ -26,7 +26,8 @@ function bizpress_blogs_plugin_scripts($hook){
 add_action('admin_enqueue_scripts', 'bizpress_blogs_plugin_scripts');
 
 function bizpress_blogs_client_scripts(){
-    wp_enqueue_script('bizpress_blogs_client',plugins_url( 'assets/js/client.js', __FILE__ ),['jquery']);
+    wp_register_script('bizpress_blogs_client',plugins_url( 'assets/js/client.js', __FILE__ ),['jquery']);
+    wp_enqueue_script('bizpress_blogs_client');
 }
 add_action( 'wp_enqueue_scripts', 'bizpress_blogs_client_scripts' );
 

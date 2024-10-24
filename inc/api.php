@@ -52,7 +52,7 @@ function bizpress_blogs_getCategories($publisher = 'bizink'){
 }
 
 function bizpress_blogs_getCategories_ajax(){
-    $publisher = $_POST['publisher'] ? filter_input(INPUT_POST,$_POST['publisher'],FILTER_SANITIZE_SPECIAL_CHARS) : 'bizink';
+    $publisher = $_POST['publisher'] ? htmlspecialchars($_POST['publisher']) : 'bizink';
     wp_send_json(bizpress_blogs_getCategories($publisher));
 }
 add_action( 'wp_ajax_bizpressblogscategories', 'bizpress_blogs_getCategories_ajax' );
@@ -102,7 +102,6 @@ function bizinkblogs_getPosts($args = ['status' => 'publish','per_page' => 8],$p
             'totalPosts' => $totalPosts,
             'totalPages' => $totalPages,
             'posts' => $body,
-            'url' => $postUrl,
         );
     }
     else{
@@ -140,7 +139,6 @@ function bizinkblogs_getSinglePost($id){
     global $bizink_bace,$bizinkcontent_client;
 
     $publishers = bizpressblogs_getPublishers();
-
     $postUrl = add_query_arg(array( '_fields' => 'id,title,content,sticky,excerpt,featured_media,featured_image,date,modified,slug,categories,region,publisher-publisher,publisher-topic,publisher-type' ),wp_slash($bizink_bace.'publisher-content/'.$id));
     $response = wp_remote_get($postUrl,$bizinkcontent_client);
     $status = wp_remote_retrieve_response_code($response);
@@ -172,7 +170,7 @@ function bizinkblogs_getSinglePost($id){
 
 function bizpress_blogs_ajax(){
     $page = isset($_REQUEST['blogpage']) ? $_REQUEST['blogpage'] : 1;
-    $publisher = $_POST['publisher'] ? filter_input(INPUT_POST,$_POST['publisher'],FILTER_SANITIZE_SPECIAL_CHARS) : 'bizink';
+    $publisher = isset($_POST['publisher']) ? htmlspecialchars($_POST['publisher']) : 'bizink';
     $args = array(
         'status' => 'publish',
         'per_page' => 8,
@@ -207,8 +205,8 @@ add_action( 'wp_ajax_bizpressblogs', 'bizpress_blogs_ajax' );
 
 function bizpress_blogs_addarticle_ajax(){
     global $bizink_bace,$bizinkcontent_client;
-    $bizpressPostID = $_POST['bizpressPostID'] ? filter_input(INPUT_POST,'bizpressPostID',FILTER_SANITIZE_NUMBER_INT) : false;
-    $publisher = $_POST['publisher'] ? filter_input(INPUT_POST,$_POST['publisher'],FILTER_SANITIZE_SPECIAL_CHARS) : 'bizink';
+    $bizpressPostID = isset($_POST['bizpressPostID']) ? htmlspecialchars($_POST['bizpressPostID']) : false;
+    $publisher = isset($_POST['publisher']) ? htmlspecialchars($_POST['publisher']) : 'bizink';
 
     if($bizpressPostID){
 
