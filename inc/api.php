@@ -271,10 +271,9 @@ function bizpress_blogs_addarticle_ajax(){
                     wp_send_json(array(
                         'status' => 'success',
                         'type' => 'add_post',
-                        'message' => __('Success the post has been added to you blog','bizink-client'),
+                        'message' => __('Success the post has been added to your blog','bizink-client'),
                         'post_id' => $post,
                         'post' => get_post($post),
-                        'currentCount' => 30
                     ),200);
                 }
                 else{

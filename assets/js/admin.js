@@ -59,7 +59,6 @@ function eventBindings(){
                         prevPosts.push(parseInt($(this).data('id')));
                         $('.bizpress_blogs_posts').data('posts',prevPosts);
                         $('.bizpress_blogs_posts').attr('data-posts',prevPosts);
-                        $('#remainingCount').text(response.currentCount);
                     }
                     else{
                         $('#bizpress_blogs_addpost_model .close_model').prop('disabled', false);
