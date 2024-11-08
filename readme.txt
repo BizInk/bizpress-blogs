@@ -22,7 +22,7 @@ Display business content on your website that is automatically updated by the Bi
 == Changelog ==
 
 = 1.3.9 =
-* Bug Fix: Fix for blog not showing all categories
+* Bug Fix: Fix for Bizink Content not showing all categories
 
 = 1.3.8 =
 * Fix: Spelling mistake
