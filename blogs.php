@@ -116,8 +116,12 @@ function bizpress_blogs_page(){
                             if(empty($categories) == false){
                                 foreach($categories as $category){
                                     if($category->slug != 'uncategorized'): //uncategorized
-                                        if($category->id == $_REQUEST['category']) $selected = 'selected';
-                                        else $selected = '';
+                                        if(!empty($_REQUEST['category']) && $category->id == $_REQUEST['category']){
+                                            $selected = 'selected';
+                                        }
+                                        else{
+                                            $selected = '';
+                                        }
                                         echo '<option value="'.$category->id.'" '.$selected.'>'.__($category->name,'bizink-client').'</option>';
                                     endif;
                                 }
@@ -153,7 +157,7 @@ function bizpress_blogs_page(){
                 <div class="pagenation">
                     <button type="button" <?php if(($_GET['blogpage'] ?? 1) <= 1): echo 'disabled'; endif; ?> class="pagenation_button prev_button"><span class="pagenation_button_text"><?php _e('Previous','bizink-client'); ?></span></button>
                     <div class="pagenation_pages"></div> 
-                    <button type="button" <?php if($_GET['blogpage'] >= $postResponce['totalPages']): echo 'disabled'; endif; ?>  class="pagenation_button next_button"><span class="pagenation_button_text"><?php _e('Next','bizink-client'); ?></span></button>
+                    <button type="button" <?php if(!empty($_GET['blogpage']) && $_GET['blogpage'] >= $postResponce['totalPages']): echo 'disabled'; endif; ?>  class="pagenation_button next_button"><span class="pagenation_button_text"><?php _e('Next','bizink-client'); ?></span></button>
                 </div>
             </div>
             <?php endif; ?>

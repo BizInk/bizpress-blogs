@@ -31,7 +31,7 @@ function bizpress_blogs_getCategories($publisher = 'bizink'){
     else{
         $url = 'categories';
     }
-    $response = wp_remote_get($bizink_bace.$url.'?_fields=id,count,name,slug,parent',$bizinkcontent_client);
+    $response = wp_remote_get($bizink_bace.$url.'?per_page=100&exclude=1&_fields=id,count,name,slug,parent',$bizinkcontent_client);
     $status = wp_remote_retrieve_response_code($response);
     if($status < 400){
         $body = json_decode(wp_remote_retrieve_body( $response ));
@@ -271,7 +271,7 @@ function bizpress_blogs_addarticle_ajax(){
                     wp_send_json(array(
                         'status' => 'success',
                         'type' => 'add_post',
-                        'message' => __('Success the post has been added to your blog','bizink-client'),
+                        'message' => __('Success. The post has been added to your blog, in draft mode.','bizink-client'),
                         'post_id' => $post,
                         'post' => get_post($post),
                     ),200);
