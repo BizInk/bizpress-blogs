@@ -28,7 +28,9 @@ function eventBindings(){
             window.open(bizpress_blogs_ajax_object.posturl+'?post='+$(this).data('id')+'&action=edit','_blank');
         });
 
-        $('.import_article').click(function(){
+        $('.import_article').click(function(event){
+            event.stopPropagation();
+            event.preventDefault();
             let importedArticle = $(this);
             $('#bizpress_blogs_addpost_model .article_title').text(importedArticle.data('title'));
             $("#bizpress_blogs_addpost_model").addClass('show');
@@ -37,6 +39,7 @@ function eventBindings(){
             if(publisher == null || publisher == ''){
                 publisher = 'bizink';
             }
+
             $.ajax({
                 type: "post",
                 dataType: "json",
@@ -44,7 +47,8 @@ function eventBindings(){
                 data: {
                     bizpressPostID: $(this).data('id'),
                     action: 'bizpressblogsarticle',
-                    publisher: publisher
+                    publisher: publisher,
+                    _ajax_nonce: bizpress_blogs_ajax_object.nonce
                 },
                 success: function(response){                    
                     $('.article_status').text(response.message);
@@ -127,6 +131,7 @@ jQuery(document).ready(function($){
             url: bizpress_blogs_ajax_object.ajaxurl,
             data: {
                 action: 'bizpressblogscategories',
+                _ajax_nonce: bizpress_blogs_ajax_object.nonce,
                 ...(publisher && {publisher:publisher})
             },
             success: function(response){
@@ -241,6 +246,7 @@ jQuery(document).ready(function($){
             url: bizpress_blogs_ajax_object.ajaxurl,
             data: {
                 action: 'bizpressblogs',
+                _ajax_nonce: bizpress_blogs_ajax_object.nonce,
                 ...(category && {category}),
                 ...(search && {search}),
                 ...(page > 1 && {blogpage:page}),

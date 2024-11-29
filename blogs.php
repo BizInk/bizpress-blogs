@@ -20,7 +20,11 @@ function bizpress_blogs_plugin_scripts($hook){
         return;
     }
     wp_register_script('bizpress_blogs_script',plugins_url( 'assets/js/admin.js', __FILE__ ),['jquery','wp-i18n']);
-    wp_localize_script('bizpress_blogs_script', 'bizpress_blogs_ajax_object',array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'posturl' => admin_url('post.php') ) );
+    wp_localize_script('bizpress_blogs_script', 'bizpress_blogs_ajax_object',array( 
+        'ajaxurl' => admin_url( 'admin-ajax.php' ),
+        'posturl' => admin_url('post.php'),
+        'nonce' => wp_create_nonce("bizpress_blogs"),
+    ));
     wp_enqueue_script('bizpress_blogs_script');
 }
 add_action('admin_enqueue_scripts', 'bizpress_blogs_plugin_scripts');
