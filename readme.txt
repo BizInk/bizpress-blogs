@@ -3,7 +3,7 @@ Contributors: Bizink,Jayden Major
 Tags: Bizink, Bizpress, business content, marketing
 Requires at least: 5.6
 Tested up to: 6.7.1
-Stable tag: 1.4
+Stable tag: 1.4.1
 Requires PHP: 7.4
 Requires at least: 6.0
 License: GPLv2 or later
@@ -23,6 +23,11 @@ Display business content on your website that is automatically updated by the Bi
 - Bizpress Blogs
 
 == Changelog ==
+
+= 1.4.1 =
+* Added button to check for previously added blogs
+* Enable paste to search bar
+* Shows more blogs on a single page
 
 = 1.4 =
 * Icon Update

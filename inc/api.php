@@ -16,6 +16,8 @@ $bizinkcontent_client = array(
       'Authorization' => 'Bearer OSEgUIcnTnaLAPTjkbVtwrwZzMqkpywTIYzZMnpB'
     )
 );
+
+
 function bizpress_blogs_getCategories($publisher = 'bizink'){
     global $bizink_bace,$bizinkcontent_client;
     if(get_transient('bizpress_blog_categories_'.$publisher)){
@@ -31,7 +33,8 @@ function bizpress_blogs_getCategories($publisher = 'bizink'){
     else{
         $url = 'categories';
     }
-    $response = wp_remote_get($bizink_bace.$url.'?per_page=100&exclude=1&_fields=id,count,name,slug,parent',$bizinkcontent_client);
+    $excludeCat = 1;
+    $response = wp_remote_get($bizink_bace.$url.'?per_page=100&exclude='.$excludeCat.'&_fields=id,count,name,slug,parent',$bizinkcontent_client);
     $status = wp_remote_retrieve_response_code($response);
     if($status < 400){
         $body = json_decode(wp_remote_retrieve_body( $response ));
@@ -81,7 +84,62 @@ function bizpressblogs_getPublishers(){
     }
 }
 
-function bizinkblogs_getPosts($args = ['status' => 'publish','per_page' => 8],$publisher = 'bizink'){
+function bizpress_blogs_test_publisher_regon(){
+    global $bizink_bace,$bizinkcontent_client;
+
+}
+add_action( 'wp_ajax_bizpressblogscheck', 'bizpress_blogs_check_blogs_ajax' );
+function bizpress_blogs_check_blogs_ajax(){
+    check_ajax_referer('bizpress_blogs');
+    bizpress_blogs_check_blogs();
+    wp_send_json(array(
+        'status' => 'success',
+        'type' => 'check_blogs',
+        'message' => 'The blogs have been checked and updated.'
+    ));
+    die();
+}
+
+function bizpress_blogs_check_blogs(){
+    //$has_checked = get_option('bizpress_blogs_checked',false);
+    $previousPosts = get_option('bizpress_previousPosts',[]);
+    if(gettype($previousPosts) != 'array'){
+        $previousPosts = [];
+    }
+    $page = 1;
+    $pages = 1;
+    $args = ['status' => 'publish','per_page' => 100, '$page' => $page];
+    do{
+        $blogs = bizinkblogs_getPosts($args);
+        if($blogs['status'] == 'success'){
+            $pages = $blogs['totalPages'];
+            $page_slugs = array();
+            foreach($blogs['posts'] as $post){
+                if($post == null){
+                    array_push($page_slugs,$post->slug);
+                }
+            }
+            $qurey = new WP_Query(array(
+                'post_type' => 'post',
+                'posts_per_page' => -1,
+                'post_status' => 'any',
+                'post_name__in' => $page_slugs
+            ));
+
+            while($qurey->have_posts()){
+                $qurey->the_post();
+                $post_id = get_the_ID();
+                array_push($previousPosts, intval($post_id));
+            }
+            wp_reset_postdata();
+            $page++;
+        }
+    } while($page < $pages);
+    update_option('bizpress_previousPosts',$previousPosts);
+    //update_option('bizpress_blogs_checked',true);
+}
+
+function bizinkblogs_getPosts($args = ['status' => 'publish','per_page' => 12],$publisher = 'bizink'){
     global $bizink_bace,$bizinkcontent_client;
    
     if($publisher != 'bizink'){
@@ -178,7 +236,7 @@ function bizpress_blogs_ajax(){
     $publisher = isset($_POST['publisher']) ? htmlspecialchars($_POST['publisher']) : 'bizink';
     $args = array(
         'status' => 'publish',
-        'per_page' => 8,
+        'per_page' => 12,
         'page' => $page,
         'tax_relation' => 'AND',
         '_fields' => 'id,title,content,sticky,excerpt,featured_media,featured_image,date,modified,slug,categories,region',
@@ -252,19 +310,20 @@ function bizpress_blogs_addarticle_ajax(){
                     $previousPosts = [];
                 }
                                 
-                if( in_array($bizpressPostID,$previousPosts )){
+                if( in_array(intval($bizpressPostID),$previousPosts )){
                     wp_send_json(array(
                         'status' => 'error',
                         'type' => 'add_error_post',
                         'message' => 'This post has already been added to your blog.',
                         'array' => $previousPosts,
-                        'post_id' => $bizpressPostID
+                        'post_id' => intval($bizpressPostID)
                     ),403);
                     die();
                 }
 
                 $post = wp_insert_post(array(
                     'post_title' => $body->title->rendered,
+                    'post_name' => $body->slug,
                     'post_content' => $content,
                     'post_author'  => get_current_user_id(),
                     'meta_input' => array(
@@ -275,7 +334,7 @@ function bizpress_blogs_addarticle_ajax(){
 
                 update_option('bizpress_blog_count',get_option('bizpress_blog_count',0)+1);
 
-                array_push($previousPosts, $bizpressPostID);
+                array_push($previousPosts, intval($bizpressPostID));
                 update_option('bizpress_previousPosts',$previousPosts);
 
                 // categories

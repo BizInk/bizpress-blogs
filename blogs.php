@@ -51,7 +51,7 @@ function bizpress_blogs_menu(){
 function bizpress_blogs_page(){
     $args = array(
         'status' => 'publish',
-        'per_page' => 8,
+        'per_page' => 12,
         'tax_relation' => 'AND',
         '_fields' => 'id,title,content,sticky,excerpt,link,featured_media,featured_image,date,modified,slug,categories,region',
         'page' => $_GET['blogpage'] ?? 1
@@ -139,12 +139,25 @@ function bizpress_blogs_page(){
                 <input class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_search" id="bizpress_blogs_search_form_search" type="search" placeholder="<?php _e('Search for blogs','bizink-client');?>" name="search" <?php if(!empty($_GET['search'])){echo 'value="'.$_GET['search'].'"';} ?>/>
                 <input class="bizpress_blogs_search_form_input bizpress_blogs_search_form_input_submit" id="bizpress_blogs_search_form_submit" type="submit" value="<?php _e('Search','bizink-client');?>"/>
             </form>
+            <div class="actions">
+                <button class="bizpress_blogs_button" id="bizpress_blogs_check_imported"><?php _e('Check Imported Posts','bizink-client'); ?></button>
+            </div>
             <div class="photocredit">
                 <p><?php _e('Photo Credit:','bizink-client');?> <a target="_blank" href="https://unsplash.com/@freedomstudios">Graham Holtshausen</a></p>
             </div>
         </header>
         <?php 
         $prevPosts = get_option('bizpress_previousPosts',[]);
+        $change_bizpress_previousPosts = false;
+        foreach($prevPosts as $key => $postID){
+            if(gettype($postID) == 'string'){
+                $prevPosts[$key] = intval($postID);
+                $change_bizpress_previousPosts = true;
+            }
+        }
+        if($change_bizpress_previousPosts == true){
+            update_option('bizpress_previousPosts',$prevPosts);
+        } 
         if($postResponce['status'] == 'error'):
             ?>
             <section class="bizpress_blogs_error">
@@ -206,6 +219,28 @@ function bizpress_blogs_page(){
                     <div class="model_actions">
                         <button disabled class="bizpress_blogs_button view_model view_post"><?php _e('View Post','bizink-client'); ?></button>
                         <button disabled type="button" class="bizpress_blogs_button bizpress_blogs_button_secondary close_model"><?php _e('Close','bizink-client'); ?></button>
+                    </div>
+                </div>
+            </div>
+            <div class="bizpress_blogs_model" id="bizpress_blogs_check_model">
+                <div class="model">
+                    <div class="model_close close_model"><span class="model_close_x">X</span></div>
+                    <h2 class="model_title"><?php _e('Checking Blogs','bizink-client'); ?></h2>
+                    <div class="model_content">
+                        <div class="details">
+                            <p class="info"><?php _e('We are checking the blogs now you are safe to close this dialog. The check will keep running.','bizink-client'); ?></p>
+                            <p class="status"><?php _e('Processing...','bizink-client'); ?></p>
+                        </div>
+                        <div class="loader_section">
+                            <div id="bizink_blogs_loader" class="bizink_blogs_loader">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="model_actions">
+                        <button type="button" class="bizpress_blogs_button bizpress_blogs_button_secondary close_model"><?php _e('Close','bizink-client'); ?></button>
                     </div>
                 </div>
             </div>

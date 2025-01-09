@@ -3,6 +3,31 @@ const { __, _x, _n, _nx } = wp.i18n;
 
 function eventBindings(){
     (function($){
+
+        $('#bizpress_blogs_check_imported').click(function(event){
+            event.stopPropagation();
+            event.preventDefault();
+            $('#bizpress_blogs_check_model').addClass('show');
+            $.ajax({
+                type: "post",
+                dataType: "json",
+                url: bizpress_blogs_ajax_object.ajaxurl,
+                data: {
+                    bizpressPostID: $(this).data('id'),
+                    action: 'bizpressblogscheck',
+                    _ajax_nonce: bizpress_blogs_ajax_object.nonce
+                },
+                success: function(response){
+                    $('#bizpress_blogs_check_model .model .status').text(__('Check Complete','bizink-client'));
+                    $('#bizpress_blogs_check_model').removeClass('show');
+                },
+                error: function(response){
+                    $('#bizpress_blogs_check_model .model .status').text(__('Check Failed','bizink-client'));
+                    $('#bizpress_blogs_check_model').removeClass('show');
+                }
+            });
+        });
+
         $('#bizpress_blogs_category').on('focus',function(){
             $('#bizpress_blogs_category').parent().addClass('open');
         });
@@ -84,13 +109,15 @@ function eventBindings(){
         $('.model_content').on('selectstart',function(){return false;});
         $('.blog .blog_excerpt').on('mousedown',function(){return false;});
         $('.blog .blog_excerpt').on('selectstart',function(){return false;});
-    
+        
+        /*
         $(document).bind("contextmenu",function(e){
             return false;
         });
-        $('body').bind('cut copy paste', function(event) {
+        $('body').bind('cut copy', function(event) {
             event.preventDefault();
         });
+        */
     })(jQuery); 
 }
 

@@ -11,10 +11,7 @@
 
 .bizpress_blogs{
     margin-left: -20px;
-    -webkit-user-select: none;
-     -moz-user-select: none;
-     -ms-user-select: none;
-     user-select: none;
+    user-select: none;
 }
 
 .bizpress_blogs_error{
@@ -54,12 +51,11 @@
 }
 
 .bizpress_blogs .bizpress_blogs_header .photocredit{
-    background-color: #000;
+    background-color: rgba(0,0,0,0.75);
     padding: 1rem;
     position: absolute;
     bottom: 0;
     right: 0;
-    opacity: 0.8;
     border-radius: 6px 0 0 0;
 }
 .bizpress_blogs .bizpress_blogs_header .photocredit p{
@@ -72,6 +68,15 @@
 .bizpress_blogs .bizpress_blogs_header .photocredit p a{
     color: #fefefe;
     text-decoration: none;
+}
+
+.bizpress_blogs .bizpress_blogs_header .actions{
+    background-color: rgba(0,0,0,0.75);
+    padding: 1rem;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border-radius: 6px 0 0 0;
 }
 
 .bizpress_blogs .bizpress_blogs_header h2{
@@ -210,10 +215,7 @@
 }
 .bizpress_blog_items .blog .blog_text .blog_excerpt{
     margin-bottom: 1rem;
-    -webkit-user-select: none;
-     -moz-user-select: none;
-     -ms-user-select: none;
-     user-select: none;
+    user-select: none;
 }
 .bizpress_blog_items .blog .blog_text .blog_excerpt p{
     margin:0;
@@ -281,10 +283,7 @@
     max-height: 75vh;
     width: 97%;
     padding:0.8rem;
-    -webkit-user-select: none;
-     -moz-user-select: none;
-     -ms-user-select: none;
-     user-select: none;
+    user-select: none;
 }
 .bizpress_blogs_model .model .model_content_blog{
     scroll-behavior: smooth;
@@ -327,6 +326,10 @@
 }
 .bizpress_blogs_model .article_title,
 .bizpress_blogs_model .article_status{
+    text-align: center;
+}
+
+.bizpress_blogs_check_model .model .model_content .details p{
     text-align: center;
 }
 
