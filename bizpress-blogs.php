@@ -5,7 +5,7 @@
  * Plugin URI: https://bizinkonline.com
  * Author: Bizink
  * Author URI: https://bizinkonline.com
- * Version: 1.4.1
+ * Version: 1.4.2
  * Requires PHP: 7.4
  * Requires at least: 6.0
  * Text Domain: bizink-client
@@ -23,6 +23,6 @@ require 'plugin-update-checker/plugin-update-checker.php';
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 $myUpdateChecker = PucFactory::buildUpdateChecker('https://github.com/BizInk/bizpress-blogs',__FILE__,'bizpress-blogs');
 $myUpdateChecker->setBranch('main');
-$myUpdateChecker->setAuthentication('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');
+$myUpdateChecker->setAuthentication('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');
 
 include 'blogs.php';
