@@ -5,11 +5,13 @@
  * Plugin URI: https://bizinkonline.com
  * Author: Bizink
  * Author URI: https://bizinkonline.com
- * Version: 1.4.2
+ * Version: 1.4.3
  * Requires PHP: 7.4
  * Requires at least: 6.0
  * Text Domain: bizink-client
  * Domain Path: /languages
+ * License: GNU General Public License v2 or later
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
 
 /**

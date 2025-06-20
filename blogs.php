@@ -66,9 +66,11 @@ function bizpress_blogs_page(){
         $regionIDs = bizpress_blogs_get_regons();
     }
     $myRegionID = 0;
-    foreach($regionIDs as $region){
-        if(strtolower($region->slug) == strtolower($options['content_region'])){
-            $myRegionID = $region->id;
+    if(!empty($regionIDs)){
+        foreach($regionIDs as $region){
+            if(strtolower($region->slug) == strtolower($options['content_region'])){
+                $myRegionID = $region->id;
+            }
         }
     }
     $categories = false;
