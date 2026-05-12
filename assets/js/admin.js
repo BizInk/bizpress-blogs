@@ -255,7 +255,7 @@ jQuery(document).ready(function($){
         $('.pagenation').hide();
 
         let category = $('#bizpress_blogs_category').val();
-        let search = $('#bizpress_blogs_search').val();
+        let search = $('#bizpress_blogs_search_form_search').val(); // bizpress_blogs_search_form_search
         let page = $('.bizpress_blogs_posts').data('page');
         let publisher = $('#bizpress_blogs_publisher').val();
         if(publisher == null || publisher == ''){

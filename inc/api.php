@@ -258,8 +258,8 @@ function bizpress_blogs_ajax(){
     $search = isset($_REQUEST['search']) ? $_REQUEST['search'] : false;
     $category = isset($_REQUEST['category']) ? $_REQUEST['category'] : false;
     
-    if(!empty($search)) $args = array_merge(array('search' => $search),$args);
-    if(!empty($category) && $category != 'all' && $category != 'other') $args = array_merge(array('categories' => $category),$args);
+    if(!empty($search)) $args['search'] = $search;
+    if(!empty($category) && $category != 'all' && $category != 'other') $args['category'] = $category;
     if(!empty($myRegionID) && $myRegionID != 0) $args = array_merge(array('region' => $myRegionID),$args);
 
     wp_send_json(bizinkblogs_getPosts($args,$publisher));
